@@ -22,6 +22,10 @@ public class UserEntity {
     private String password;
     private Boolean isEnabled;
 
+    public Long getUserId() {
+        return userId;
+    }
+
     public String getFullName() {
         return fullName;
     }
