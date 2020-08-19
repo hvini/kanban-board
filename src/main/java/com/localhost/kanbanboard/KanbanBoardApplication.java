@@ -7,7 +7,7 @@ import org.springframework.boot.SpringApplication;
 public class KanbanBoardApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DemoApplication.class, args);
+		SpringApplication.run(KanbanBoardApplication.class, args);
 	}
 
 }
