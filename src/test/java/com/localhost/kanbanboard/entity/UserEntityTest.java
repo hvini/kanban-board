@@ -34,7 +34,7 @@ public class UserEntityTest {
         UserEntity copy = entityManager.persistFlushFind(user);
 
         //then
-        assertNotNull(copy);
+        assertNotNull(copy.getUserId());
     }
 
     @Test
@@ -52,7 +52,7 @@ public class UserEntityTest {
         UserEntity updatedCopy = entityManager.persistFlushFind(copy);
 
         //then
-        assertNotEquals(copy, updatedCopy);
+        assertNotEquals(false, updatedCopy.getIsEnabled());
     }
 
     @Test
