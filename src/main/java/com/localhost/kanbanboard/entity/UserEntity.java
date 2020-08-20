@@ -3,8 +3,10 @@ package com.localhost.kanbanboard.entity;
 import javax.validation.constraints.NotEmpty;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.OneToMany;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.util.List;
 
 /**
  * UserEntity
@@ -21,6 +23,8 @@ public class UserEntity {
     @NotEmpty(message = "Senha deve ser informada!.")
     private String password;
     private Boolean isEnabled;
+    @OneToMany(mappedBy = "user")
+    private List<UserConfirmationEntity> userConfirmations;
 
     public Long getUserId() {
         return userId;
@@ -56,5 +60,17 @@ public class UserEntity {
 
     public void setIsEnabled(Boolean isEnabled) {
         this.isEnabled = isEnabled;
+    }
+
+    public List<UserConfirmationEntity> getUserConfirmations() {
+        return userConfirmations;
+    }
+    
+    public void setUserConfirmations(List<UserConfirmationEntity> userConfirmations) {
+        this.userConfirmations = userConfirmations;
+    }
+
+    public void addUserConfirmation(UserConfirmationEntity userConfirmation) {
+        this.userConfirmations.add(userConfirmation);
     }
 }
