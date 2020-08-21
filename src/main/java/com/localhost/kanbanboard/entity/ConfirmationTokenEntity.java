@@ -7,6 +7,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Entity;
 import java.time.LocalDateTime;
 import javax.persistence.Id;
+import java.util.UUID;
 
 /**
  * UserConfirmation
@@ -21,6 +22,14 @@ public class ConfirmationTokenEntity {
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
     private UserEntity user;
+
+    public ConfirmationTokenEntity() { }
+
+    public ConfirmationTokenEntity(UserEntity user) {
+        this.user = user;
+        this.createdDate = LocalDateTime.now();
+        this.token = UUID.randomUUID().toString();
+    }
 
     public Long getConfirmationId() {
         return confirmationId;
