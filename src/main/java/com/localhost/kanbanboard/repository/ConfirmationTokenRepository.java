@@ -1,6 +1,6 @@
 package com.localhost.kanbanboard.repository;
 
-import com.localhost.kanbanboard.entity.UserConfirmationEntity;
+import com.localhost.kanbanboard.entity.ConfirmationTokenEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,4 +8,4 @@ import org.springframework.stereotype.Repository;
  * UserConfirmationRepository
  */
 @Repository
-public interface UserConfirmationRepository extends JpaRepository<UserConfirmationEntity, Long> { }
+public interface ConfirmationTokenRepository extends JpaRepository<ConfirmationTokenEntity, Long> { }

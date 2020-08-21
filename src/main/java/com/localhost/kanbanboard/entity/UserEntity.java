@@ -24,7 +24,7 @@ public class UserEntity {
     private String password;
     private Boolean isEnabled;
     @OneToMany(mappedBy = "user")
-    private List<UserConfirmationEntity> userConfirmations;
+    private List<ConfirmationTokenEntity> confirmationToken;
 
     public Long getUserId() {
         return userId;
@@ -62,15 +62,15 @@ public class UserEntity {
         this.isEnabled = isEnabled;
     }
 
-    public List<UserConfirmationEntity> getUserConfirmations() {
-        return userConfirmations;
+    public List<ConfirmationTokenEntity> getConfirmationToken() {
+        return confirmationToken;
     }
     
-    public void setUserConfirmations(List<UserConfirmationEntity> userConfirmations) {
-        this.userConfirmations = userConfirmations;
+    public void setConfirmationToken(List<ConfirmationTokenEntity> confirmationToken) {
+        this.confirmationToken = confirmationToken;
     }
 
-    public void addUserConfirmation(UserConfirmationEntity userConfirmation) {
-        this.userConfirmations.add(userConfirmation);
+    public void addConfirmationToken(ConfirmationTokenEntity confirmationToken) {
+        this.confirmationToken.add(confirmationToken);
     }
 }

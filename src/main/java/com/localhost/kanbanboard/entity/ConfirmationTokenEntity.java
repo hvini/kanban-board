@@ -12,7 +12,7 @@ import javax.persistence.Id;
  * UserConfirmation
  */
 @Entity
-public class UserConfirmationEntity {
+public class ConfirmationTokenEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long confirmationId;

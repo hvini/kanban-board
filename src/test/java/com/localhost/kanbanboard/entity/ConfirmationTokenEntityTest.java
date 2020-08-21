@@ -18,17 +18,17 @@ import java.time.LocalDateTime;
  */
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = Replace.NONE)
-public class UserConfirmationEntityTest {
+public class ConfirmationTokenEntityTest {
     @Autowired
     private TestEntityManager entityManager;
-    private UserConfirmationEntity userConfirmation;
+    private ConfirmationTokenEntity confirmationToken;
     private UserEntity user;
 
     @BeforeEach
     public void setUp() {
-        userConfirmation = new UserConfirmationEntity();
-        userConfirmation.setCreatedDate(LocalDateTime.now());
-        userConfirmation.setToken("321");
+        confirmationToken = new ConfirmationTokenEntity();
+        confirmationToken.setCreatedDate(LocalDateTime.now());
+        confirmationToken.setToken("321");
 
         user = new UserEntity();
         user.setFullName("Vinícius Cavalcanti");
@@ -41,28 +41,28 @@ public class UserConfirmationEntityTest {
     public void userConfirmationCanBeCreated() {
         //given
         UserEntity persistedUser = entityManager.persistFlushFind(user);
-        userConfirmation.setUser(persistedUser);
+        confirmationToken.setUser(persistedUser);
         
         //when
-        UserConfirmationEntity persistedUserConfirmation = entityManager.persistFlushFind(userConfirmation);
+        ConfirmationTokenEntity persistedConfirmationToken = entityManager.persistFlushFind(confirmationToken);
 
         //then
-        assertNotNull(persistedUserConfirmation.getConfirmationId());
-        assertEquals(userConfirmation.getCreatedDate(), persistedUserConfirmation.getCreatedDate());
-        assertEquals(userConfirmation.getToken(), persistedUserConfirmation.getToken());
-        assertEquals(userConfirmation.getUser().getUserId(), persistedUserConfirmation.getUser().getUserId());
+        assertNotNull(persistedConfirmationToken.getConfirmationId());
+        assertEquals(confirmationToken.getCreatedDate(), persistedConfirmationToken.getCreatedDate());
+        assertEquals(confirmationToken.getToken(), persistedConfirmationToken.getToken());
+        assertEquals(confirmationToken.getUser().getUserId(), persistedConfirmationToken.getUser().getUserId());
     }
 
     @Test
     public void userConfirmationCanBeUpdated() {
         //given
         UserEntity persistedUser = entityManager.persistFlushFind(user);
-        userConfirmation.setUser(persistedUser);
-        UserConfirmationEntity copy = entityManager.persistFlushFind(userConfirmation);
+        confirmationToken.setUser(persistedUser);
+        ConfirmationTokenEntity copy = entityManager.persistFlushFind(confirmationToken);
 
         //when
         copy.setToken("abc");
-        UserConfirmationEntity updatedCopy = entityManager.persistFlushFind(copy);
+        ConfirmationTokenEntity updatedCopy = entityManager.persistFlushFind(copy);
 
         //then
         assertNotEquals("321", updatedCopy.getToken());
@@ -72,14 +72,14 @@ public class UserConfirmationEntityTest {
     public void userConfirmationCanBeRemoved() {
         //given
         UserEntity persistedUser = entityManager.persistFlushFind(user);
-        userConfirmation.setUser(persistedUser);
-        UserConfirmationEntity copy = entityManager.persistFlushFind(userConfirmation);
+        confirmationToken.setUser(persistedUser);
+        ConfirmationTokenEntity copy = entityManager.persistFlushFind(confirmationToken);
 
         //when
         entityManager.remove(copy);
 
         //then
-        assertEquals(entityManager.find(UserConfirmationEntity.class, copy.getConfirmationId()), isNull());
+        assertEquals(entityManager.find(ConfirmationTokenEntity.class, copy.getConfirmationId()), isNull());
 
     }
 }

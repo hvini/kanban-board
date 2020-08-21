@@ -3,8 +3,8 @@ package com.localhost.kanbanboard.repository;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import com.localhost.kanbanboard.entity.ConfirmationTokenEntity;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import com.localhost.kanbanboard.entity.UserConfirmationEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.localhost.kanbanboard.entity.UserEntity;
@@ -19,12 +19,12 @@ import java.util.List;
  */
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = Replace.NONE)
-public class UserConfirmationRepositoryTest {
+public class ConfirmationTokenRepositoryTest {
     @Autowired
-    private UserConfirmationRepository userConfirmationRepository;
+    private ConfirmationTokenRepository confirmationTokenRepository;
     @Autowired
     private UserRepository userRepository;
-    private UserConfirmationEntity userConfirmation;
+    private ConfirmationTokenEntity confirmationToken;
     private UserEntity user;
 
     @BeforeEach
@@ -36,25 +36,25 @@ public class UserConfirmationRepositoryTest {
         user.setIsEnabled(false);
         UserEntity savedUser = userRepository.save(user);
 
-        userConfirmation = new UserConfirmationEntity();
-        userConfirmation.setCreatedDate(LocalDateTime.now());
-        userConfirmation.setToken("123321");
-        userConfirmation.setUser(savedUser);
+        confirmationToken = new ConfirmationTokenEntity();
+        confirmationToken.setCreatedDate(LocalDateTime.now());
+        confirmationToken.setToken("123321");
+        confirmationToken.setUser(savedUser);
     }
 
     @Test
     public void userConfirmationCanBePersisted() {
         //then
-        assertNotNull(userConfirmationRepository.save(userConfirmation));
+        assertNotNull(confirmationTokenRepository.save(confirmationToken));
     }
 
     @Test
     public void userConfirmationCanBeFoundedById() {
         //given
-        userConfirmationRepository.save(userConfirmation);
+        confirmationTokenRepository.save(confirmationToken);
 
         //when
-        UserConfirmationEntity copy = userConfirmationRepository.getOne(userConfirmation.getConfirmationId());
+        ConfirmationTokenEntity copy = confirmationTokenRepository.getOne(confirmationToken.getConfirmationId());
 
         //then
         assertNotNull(copy);
@@ -63,8 +63,8 @@ public class UserConfirmationRepositoryTest {
     @Test
     public void userConfirmationCanBeUpdated() {
         //given
-        userConfirmationRepository.save(userConfirmation);
-        UserConfirmationEntity copy = userConfirmationRepository.getOne(userConfirmation.getConfirmationId());
+        confirmationTokenRepository.save(confirmationToken);
+        ConfirmationTokenEntity copy = confirmationTokenRepository.getOne(confirmationToken.getConfirmationId());
 
         //when
         copy.setToken("321123");
@@ -76,10 +76,10 @@ public class UserConfirmationRepositoryTest {
     @Test
     public void userConfirmationsCanBeListed() {
         //given
-        userConfirmationRepository.save(userConfirmation);
+        confirmationTokenRepository.save(confirmationToken);
 
         //when
-        List<UserConfirmationEntity> userConfirmations = userConfirmationRepository.findAll();
+        List<ConfirmationTokenEntity> userConfirmations = confirmationTokenRepository.findAll();
 
         //then
         assertNotEquals(true, userConfirmations.isEmpty());
@@ -88,12 +88,12 @@ public class UserConfirmationRepositoryTest {
     @Test
     public void userConfirmationCanBeRemoved() {
         //given
-        userConfirmationRepository.save(userConfirmation);
-        UserConfirmationEntity copy = userConfirmationRepository.getOne(userConfirmation.getConfirmationId());
+        confirmationTokenRepository.save(confirmationToken);
+        ConfirmationTokenEntity copy = confirmationTokenRepository.getOne(confirmationToken.getConfirmationId());
 
         //when
-        userConfirmationRepository.delete(copy);
-        Optional<UserConfirmationEntity> removedCopy = userConfirmationRepository.findById(copy.getConfirmationId());
+        confirmationTokenRepository.delete(copy);
+        Optional<ConfirmationTokenEntity> removedCopy = confirmationTokenRepository.findById(copy.getConfirmationId());
 
         //then
         assertNotEquals(true, removedCopy.isPresent());
