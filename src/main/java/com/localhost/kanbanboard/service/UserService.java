@@ -1,15 +1,23 @@
 package com.localhost.kanbanboard.service;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import com.localhost.kanbanboard.exception.MethodArgumentNotValidException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.localhost.kanbanboard.exception.ResourceNotFoundException;
+import org.springframework.security.core.userdetails.UserDetails;
 import com.localhost.kanbanboard.entity.ConfirmationTokenEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.localhost.kanbanboard.repository.UserRepository;
+import com.localhost.kanbanboard.entity.AuthRequest;
 import com.localhost.kanbanboard.entity.UserEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
+import com.localhost.kanbanboard.util.JwtUtil;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.List;
 
@@ -17,13 +25,23 @@ import java.util.List;
  * UserService
  */
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private ConfirmationTokenService confirmationTokenService;
     @Autowired
     private EmailSenderService emailSenderService;
+    @Autowired
+    private JwtUtil jwtUtil;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        UserEntity user = userRepository.findByEmail(email);
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), new ArrayList<>());
+    }
 
     public List<UserEntity> getAll() throws Exception {
         List<UserEntity> users = userRepository.findAll();
@@ -64,6 +82,13 @@ public class UserService {
 
         user.setIsEnabled(true);
         userRepository.save(user);
+    }
+
+    public String authenticate(AuthRequest authRequest) throws Exception {
+        authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
+
+        return jwtUtil.generateToken(authRequest.getEmail());
     }
     
     private void sendConfirmationMail(String userMail, String token) {
