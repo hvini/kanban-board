@@ -68,10 +68,10 @@ public class UserService implements UserDetailsService {
         user.setPassword(encryptedPassword);
         userRepository.save(user);
 
-        ConfirmationTokenEntity confirmationToken = new ConfirmationTokenEntity(user);
+        /* ConfirmationTokenEntity confirmationToken = new ConfirmationTokenEntity(user);
         confirmationTokenService.saveConfirmationToken(confirmationToken);
 
-        sendConfirmationMail(user.getEmail(), confirmationToken.getToken());
+        sendConfirmationMail(user.getEmail(), confirmationToken.getToken()); */
     }
 
     public void confirmUser(ConfirmationTokenEntity confirmationToken) throws Exception {
