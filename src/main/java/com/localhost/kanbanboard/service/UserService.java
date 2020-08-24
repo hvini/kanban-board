@@ -13,7 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.localhost.kanbanboard.repository.UserRepository;
 import com.localhost.kanbanboard.entity.AuthRequest;
 import com.localhost.kanbanboard.entity.UserEntity;
-import org.springframework.mail.SimpleMailMessage;
+import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Email;
 import org.springframework.stereotype.Service;
 import com.localhost.kanbanboard.util.JwtUtil;
 import java.security.SecureRandom;
@@ -61,17 +62,17 @@ public class UserService implements UserDetailsService {
         return user.get();
     }
 
-    public void register(UserEntity user) {
+    public void register(UserEntity user) throws Exception {
         String encryptedPassword = createPasswordHash(user.getPassword());
 
         user.setIsEnabled(false);
         user.setPassword(encryptedPassword);
         userRepository.save(user);
 
-        /* ConfirmationTokenEntity confirmationToken = new ConfirmationTokenEntity(user);
+        ConfirmationTokenEntity confirmationToken = new ConfirmationTokenEntity(user);
         confirmationTokenService.saveConfirmationToken(confirmationToken);
 
-        sendConfirmationMail(user.getEmail(), confirmationToken.getToken()); */
+        sendConfirmationMail(user.getEmail(), confirmationToken.getToken());
     }
 
     public void confirmUser(ConfirmationTokenEntity confirmationToken) throws Exception {
@@ -91,13 +92,13 @@ public class UserService implements UserDetailsService {
         return jwtUtil.generateToken(authRequest.getEmail());
     }
     
-    private void sendConfirmationMail(String userMail, String token) {
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(userMail);
-        mailMessage.setSubject("Mail Confirmation Link!");
-        mailMessage.setFrom("no-reply@kanbanboard.com");
-        mailMessage.setText("Thank you for registering. Please click on the below link to activate your account." + "http://localhost:8080/sign-up/confirm?token=" + token);
-        emailSenderService.sendEmail(mailMessage);
+    private void sendConfirmationMail(String userMail, String token) throws Exception {
+        Content content = new Content("text/html", "Thank you for registering. Please click on the below link to activate your account." + "http://localhost:8080/sign-up/confirm/?token=" + token);
+        String subject  = "Mail Confirmation Link!.";
+        Email from      = new Email("vhpcavalcanti@outlook.com");
+        Email to        = new Email(userMail);
+        
+        emailSenderService.sendEmail(from, subject, to, content);
     }
 
     private String createPasswordHash(String password) {

@@ -1,7 +1,10 @@
 package com.localhost.kanbanboard.controller;
 
+import com.localhost.kanbanboard.service.ConfirmationTokenService;
+import com.localhost.kanbanboard.entity.ConfirmationTokenEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +24,8 @@ import java.util.List;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private ConfirmationTokenService confirmationTokenService;
 
     @GetMapping("/users/")
     public ResponseEntity<?> getAll() {
@@ -34,8 +39,12 @@ public class UserController {
 
     @PostMapping("/register/")
     public ResponseEntity<?> register(@RequestBody UserEntity userEntity) {
-        userService.register(userEntity);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        try {
+            userService.register(userEntity);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch(Exception ex) {
+            return new ResponseEntity<>(ex, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/sign-up/")
@@ -43,6 +52,18 @@ public class UserController {
         try {
             String token = userService.authenticate(authRequest);
             return new ResponseEntity<>(token, HttpStatus.OK);
+        } catch(Exception ex) {
+            return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/sign-up/confirm/")
+    public ResponseEntity<?> confirmRegistration(@RequestParam("token") String token) {
+        ConfirmationTokenEntity confirmationToken = confirmationTokenService.getByToken(token);
+        try {
+            userService.confirmUser(confirmationToken);
+            return new ResponseEntity<>(HttpStatus.OK);
+
         } catch(Exception ex) {
             return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
         }

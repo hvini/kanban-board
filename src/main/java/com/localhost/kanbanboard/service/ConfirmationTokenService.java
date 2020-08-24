@@ -13,6 +13,12 @@ public class ConfirmationTokenService {
     @Autowired
     private ConfirmationTokenRepository confirmationTokenRepository;
 
+    public ConfirmationTokenEntity getByToken(String token) {
+        ConfirmationTokenEntity confirmationToken = confirmationTokenRepository.findByToken(token);
+
+        return confirmationToken;
+    }
+
     public void saveConfirmationToken(ConfirmationTokenEntity confirmationToken) {
         confirmationTokenRepository.save(confirmationToken);
     }

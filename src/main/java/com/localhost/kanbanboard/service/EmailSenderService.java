@@ -1,19 +1,36 @@
 package com.localhost.kanbanboard.service;
 
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.mail.SimpleMailMessage;
+import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Email;
 import org.springframework.stereotype.Service;
+import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.Response;
+import com.sendgrid.SendGrid;
+import com.sendgrid.Request;
+import com.sendgrid.Method;
 
 /**
  * EmailSenderService
  */
 @Service
 public class EmailSenderService {
-    private JavaMailSender javaMailSender;
+    @Value("${sendgrid.api.key}")
+    private String apiKey;
 
     @Async
-    public void sendEmail(SimpleMailMessage email) {
-        javaMailSender.send(email);
+    public void sendEmail(Email from, String subject, Email to, Content content) throws Exception {
+        Mail mail = new Mail(from, subject, to, content);
+        SendGrid sg = new SendGrid(apiKey);
+
+        Request request = new Request();
+        request.setMethod(Method.POST);
+        request.setEndpoint("mail/send");
+        request.setBody(mail.build());
+
+        Response response = sg.api(request);
+        if(response == null)
+            throw new Exception("An internal error has occurred!.");
     }
 }

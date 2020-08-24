@@ -1,5 +1,6 @@
 package com.localhost.kanbanboard.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.validation.constraints.NotEmpty;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -62,6 +63,7 @@ public class UserEntity {
         this.isEnabled = isEnabled;
     }
 
+    @JsonIgnore
     public List<ConfirmationTokenEntity> getConfirmationToken() {
         return confirmationToken;
     }
