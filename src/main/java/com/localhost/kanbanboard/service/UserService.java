@@ -95,10 +95,39 @@ public class UserService implements UserDetailsService {
 
         return jwtUtil.generateToken(authRequest.getEmail());
     }
+
+    public void forgotPassword(String email) throws Exception {
+        UserEntity user = userRepository.findByEmail(email);
+
+        if(user == null)
+            throw new ResourceNotFoundException("There is no user with this email!.");
+
+        ConfirmationTokenEntity confirmationToken = new ConfirmationTokenEntity(user);
+        confirmationTokenService.saveConfirmationToken(confirmationToken);
+
+        sendPasswordResetEmail(user.getEmail(), confirmationToken.getToken());
+    }
+
+    public void resetPassword(ConfirmationTokenEntity confirmationToken, String password) {
+        UserEntity user = confirmationToken.getUser();
+
+        String encryptedPassword = createPasswordHash(password);
+        user.setPassword(encryptedPassword);
+        userRepository.save(user);
+    }
     
     private void sendConfirmationMail(String userMail, String token) throws Exception {
         Content content = new Content("text/html", "Thank you for registering. Please click on the below link to activate your account." + "http://localhost:8080/sign-up/confirm/?token=" + token);
         String subject  = "Mail Confirmation Link!.";
+        Email from      = new Email("vhpcavalcanti@outlook.com");
+        Email to        = new Email(userMail);
+        
+        emailSenderService.sendEmail(from, subject, to, content);
+    }
+
+    private void sendPasswordResetEmail(String userMail, String token) throws Exception {
+        Content content = new Content("text/html", "You recently requested to reset your password. Please click on the below link to reset it." + "http://localhost:8080/sign-up/reset-password/?token=" + token);
+        String subject  = "Password Reset Link!";
         Email from      = new Email("vhpcavalcanti@outlook.com");
         Email to        = new Email(userMail);
         

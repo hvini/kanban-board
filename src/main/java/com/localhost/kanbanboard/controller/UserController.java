@@ -68,4 +68,22 @@ public class UserController {
             return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
         }
     }
+
+    @PostMapping("/sign-up/forgot/")
+    public ResponseEntity<?> forgotPassword(@RequestParam("email") String email) {
+        try {
+            userService.forgotPassword(email);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch(Exception ex) {
+            return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/sign-up/reset-password/")
+    public ResponseEntity<?> resetPassword(@RequestParam("token") String token, @RequestParam("password") String password) {
+        ConfirmationTokenEntity confirmationToken = confirmationTokenService.getByToken(token);
+        
+        userService.resetPassword(confirmationToken, password);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
