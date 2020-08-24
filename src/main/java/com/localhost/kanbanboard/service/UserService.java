@@ -65,6 +65,10 @@ public class UserService implements UserDetailsService {
     public void register(UserEntity user) throws Exception {
         String encryptedPassword = createPasswordHash(user.getPassword());
 
+        UserEntity userEmail = userRepository.findByEmail(user.getEmail());
+        if(userEmail != null)
+            throw new MethodArgumentNotValidException("This email is already taken!.");
+
         user.setIsEnabled(false);
         user.setPassword(encryptedPassword);
         userRepository.save(user);
