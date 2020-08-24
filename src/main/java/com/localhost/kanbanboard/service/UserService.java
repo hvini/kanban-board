@@ -90,6 +90,26 @@ public class UserService implements UserDetailsService {
 
         return jwtUtil.generateToken(authRequest.getEmail());
     }
+
+    public void forgotPassword(String email) throws ResourceNotFoundException {
+        UserEntity user = userRepository.findByEmail(email);
+
+        if(user == null)
+            throw new ResourceNotFoundException("There is no user with this email!.");
+
+        ConfirmationTokenEntity confirmationToken = new ConfirmationTokenEntity(user);
+        confirmationTokenService.saveConfirmationToken(confirmationToken);
+
+        sendPasswordResetEmail(user.getEmail(), confirmationToken.getToken());
+    }
+
+    public void resetPassword(ConfirmationTokenEntity confirmationToken, String password) {
+        UserEntity user = confirmationToken.getUser();
+
+        String encryptedPassword = createPasswordHash(password);
+        user.setPassword(encryptedPassword);
+        userRepository.save(user);
+    }
     
     private void sendConfirmationMail(String userMail, String token) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
@@ -97,6 +117,15 @@ public class UserService implements UserDetailsService {
         mailMessage.setSubject("Mail Confirmation Link!");
         mailMessage.setFrom("no-reply@kanbanboard.com");
         mailMessage.setText("Thank you for registering. Please click on the below link to activate your account." + "http://localhost:8080/sign-up/confirm?token=" + token);
+        emailSenderService.sendEmail(mailMessage);
+    }
+
+    private void sendPasswordResetEmail(String userMail, String token) {
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(userMail);
+        mailMessage.setSubject("Password Reset Link!");
+        mailMessage.setFrom("vhpcavalcanti@gmail.com");
+        mailMessage.setText("You recently requested to reset your password. Please click on the below link to reset it." + "http://localhost:8080/sign-up/reset-password/?token=" + token);
         emailSenderService.sendEmail(mailMessage);
     }
 
