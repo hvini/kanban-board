@@ -17,7 +17,9 @@ import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
 import org.springframework.stereotype.Service;
 import com.localhost.kanbanboard.util.JwtUtil;
+import javax.naming.AuthenticationException;
 import java.security.SecureRandom;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.List;
@@ -44,16 +46,11 @@ public class UserService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), new ArrayList<>());
     }
 
-    public List<UserEntity> getAll() throws Exception {
-        List<UserEntity> users = userRepository.findAll();
-
-        if(users.isEmpty())
-            throw new ResourceNotFoundException("There are no registered users!.");
-
-        return users;
+    public List<UserEntity> getAll() {
+        return userRepository.findAll();
     }
 
-    public UserEntity getById(Long userId) throws Exception {
+    public UserEntity getById(Long userId) throws ResourceNotFoundException {
         Optional<UserEntity> user = userRepository.findById(userId);
 
         if(!user.isPresent())
@@ -62,7 +59,16 @@ public class UserService implements UserDetailsService {
         return user.get();
     }
 
-    public void register(UserEntity user) throws Exception {
+    public UserEntity getByEmail(String email) throws ResourceNotFoundException {
+        UserEntity user = userRepository.findByEmail(email);
+
+        if(user == null)
+            throw new ResourceNotFoundException("There is no user with this email!.");
+
+        return user;
+    }
+
+    public void register(UserEntity user) throws MethodArgumentNotValidException, IOException {
         String encryptedPassword = createPasswordHash(user.getPassword());
 
         UserEntity userEmail = userRepository.findByEmail(user.getEmail());
@@ -79,7 +85,7 @@ public class UserService implements UserDetailsService {
         sendConfirmationMail(user.getEmail(), confirmationToken.getToken());
     }
 
-    public void confirmUser(ConfirmationTokenEntity confirmationToken) throws Exception {
+    public void confirmUser(ConfirmationTokenEntity confirmationToken) throws MethodArgumentNotValidException {
         UserEntity user = confirmationToken.getUser();
 
         if(user.getIsEnabled())
@@ -89,18 +95,15 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    public String authenticate(AuthRequest authRequest) throws Exception {
+    public String authenticate(AuthRequest authRequest) throws AuthenticationException {
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
-
+        
         return jwtUtil.generateToken(authRequest.getEmail());
     }
 
-    public void forgotPassword(String email) throws Exception {
-        UserEntity user = userRepository.findByEmail(email);
-
-        if(user == null)
-            throw new ResourceNotFoundException("There is no user with this email!.");
+    public void forgotPassword(String email) throws IOException, ResourceNotFoundException {
+        UserEntity user = getByEmail(email);
 
         ConfirmationTokenEntity confirmationToken = new ConfirmationTokenEntity(user);
         confirmationTokenService.saveConfirmationToken(confirmationToken);
@@ -116,7 +119,7 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
     
-    private void sendConfirmationMail(String userMail, String token) throws Exception {
+    private void sendConfirmationMail(String userMail, String token) throws IOException {
         Content content = new Content("text/html", "Thank you for registering. Please click on the below link to activate your account." + "http://localhost:8080/sign-up/confirm/?token=" + token);
         String subject  = "Mail Confirmation Link!.";
         Email from      = new Email("vhpcavalcanti@outlook.com");
@@ -125,7 +128,7 @@ public class UserService implements UserDetailsService {
         emailSenderService.sendEmail(from, subject, to, content);
     }
 
-    private void sendPasswordResetEmail(String userMail, String token) throws Exception {
+    private void sendPasswordResetEmail(String userMail, String token) throws IOException {
         Content content = new Content("text/html", "You recently requested to reset your password. Please click on the below link to reset it." + "http://localhost:8080/sign-up/reset-password/?token=" + token);
         String subject  = "Password Reset Link!";
         Email from      = new Email("vhpcavalcanti@outlook.com");

@@ -9,6 +9,7 @@ import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 import com.sendgrid.Request;
+import java.io.IOException;
 import com.sendgrid.Method;
 
 /**
@@ -20,7 +21,7 @@ public class EmailSenderService {
     private String apiKey;
 
     @Async
-    public void sendEmail(Email from, String subject, Email to, Content content) throws Exception {
+    public void sendEmail(Email from, String subject, Email to, Content content) throws IOException {
         Mail mail = new Mail(from, subject, to, content);
         SendGrid sg = new SendGrid(apiKey);
 
@@ -31,6 +32,6 @@ public class EmailSenderService {
 
         Response response = sg.api(request);
         if(response == null)
-            throw new Exception("An internal error has occurred!.");
+            throw new IOException("An internal error has occurred!.");
     }
 }
