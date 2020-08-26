@@ -94,6 +94,8 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.OK);
         } catch(ResourceNotFoundException ex) {
             throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
+        } catch(MethodArgumentNotValidException ex) {
+            throw new MethodArgumentNotValidException(ex.getLocalizedMessage(), ex);
         }
     }
 }

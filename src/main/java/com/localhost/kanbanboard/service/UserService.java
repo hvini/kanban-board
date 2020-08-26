@@ -18,7 +18,9 @@ import com.sendgrid.helpers.mail.objects.Email;
 import org.springframework.stereotype.Service;
 import com.localhost.kanbanboard.util.JwtUtil;
 import javax.naming.AuthenticationException;
+import java.time.temporal.ChronoUnit;
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -88,11 +90,17 @@ public class UserService implements UserDetailsService {
     public void confirmUser(ConfirmationTokenEntity confirmationToken) throws MethodArgumentNotValidException {
         UserEntity user = confirmationToken.getUser();
 
+        long hours = ChronoUnit.HOURS.between(confirmationToken.getCreatedDate(), LocalDateTime.now());
+        if(hours >= 24)
+            throw new MethodArgumentNotValidException("Token has expired!.");
+
         if(user.getIsEnabled())
             throw new MethodArgumentNotValidException("User is already confirmed!.");
 
         user.setIsEnabled(true);
         userRepository.save(user);
+
+        confirmationTokenService.removeConfirmationToken(confirmationToken);
     }
 
     public String authenticate(AuthRequest authRequest) throws AuthenticationException {
@@ -111,12 +119,18 @@ public class UserService implements UserDetailsService {
         sendPasswordResetEmail(user.getEmail(), confirmationToken.getToken());
     }
 
-    public void resetPassword(ConfirmationTokenEntity confirmationToken, String password) {
+    public void resetPassword(ConfirmationTokenEntity confirmationToken, String password) throws MethodArgumentNotValidException {
         UserEntity user = confirmationToken.getUser();
+
+        long hours = ChronoUnit.HOURS.between(confirmationToken.getCreatedDate(), LocalDateTime.now());
+        if(hours >= 24)
+            throw new MethodArgumentNotValidException("Token has expired!.");
 
         String encryptedPassword = createPasswordHash(password);
         user.setPassword(encryptedPassword);
         userRepository.save(user);
+
+        confirmationTokenService.removeConfirmationToken(confirmationToken);
     }
     
     private void sendConfirmationMail(String userMail, String token) throws IOException {
