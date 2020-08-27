@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.time.ZoneId;
 import java.util.List;
 
 /**
@@ -90,7 +91,7 @@ public class UserService implements UserDetailsService {
     public void confirmUser(ConfirmationTokenEntity confirmationToken) throws MethodArgumentNotValidException {
         UserEntity user = confirmationToken.getUser();
 
-        long hours = ChronoUnit.HOURS.between(confirmationToken.getCreatedDate(), LocalDateTime.now());
+        long hours = ChronoUnit.HOURS.between(confirmationToken.getCreatedDate().atZone(ZoneId.systemDefault()), LocalDateTime.now().atZone(ZoneId.systemDefault()));
         if(hours >= 24)
             throw new MethodArgumentNotValidException("Token has expired!.");
 
@@ -122,7 +123,7 @@ public class UserService implements UserDetailsService {
     public void resetPassword(ConfirmationTokenEntity confirmationToken, String password) throws MethodArgumentNotValidException {
         UserEntity user = confirmationToken.getUser();
 
-        long hours = ChronoUnit.HOURS.between(confirmationToken.getCreatedDate(), LocalDateTime.now());
+        long hours = ChronoUnit.HOURS.between(confirmationToken.getCreatedDate().atZone(ZoneId.systemDefault()), LocalDateTime.now().atZone(ZoneId.systemDefault()));
         if(hours >= 24)
             throw new MethodArgumentNotValidException("Token has expired!.");
 
