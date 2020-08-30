@@ -8,6 +8,7 @@ import com.localhost.kanbanboard.entity.BoardEntity;
 import com.localhost.kanbanboard.entity.RoleEntity;
 import com.localhost.kanbanboard.entity.UserEntity;
 import org.junit.jupiter.api.BeforeEach;
+import javax.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import java.util.Optional;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import java.util.Map;
  * BoardRepositoryTest
  */
 @SpringBootTest
+@Transactional
 public class BoardRepositoryTest {
     @Autowired
     private BoardRepository boardRepository;

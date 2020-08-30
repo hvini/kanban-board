@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.springframework.boot.test.context.SpringBootTest;
 import com.localhost.kanbanboard.entity.RoleEntity;
 import org.junit.jupiter.api.BeforeEach;
+import javax.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import java.util.Optional;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
  * RoleRepositoryTest
  */
 @SpringBootTest
+@Transactional
 public class RoleRepositoryTest {
     @Autowired
     private RoleRepository roleRepository;

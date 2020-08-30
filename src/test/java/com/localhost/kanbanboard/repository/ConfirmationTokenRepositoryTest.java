@@ -2,13 +2,14 @@ package com.localhost.kanbanboard.repository;
 
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import com.localhost.kanbanboard.entity.ConfirmationTokenEntity;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.springframework.boot.test.context.SpringBootTest;
 import com.localhost.kanbanboard.entity.UserEntity;
 import org.junit.jupiter.api.BeforeEach;
+import javax.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -17,7 +18,8 @@ import java.util.List;
 /**
  * UserConfirmationRepositoryTest
  */
-@DataJpaTest
+@SpringBootTest
+@Transactional
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 public class ConfirmationTokenRepositoryTest {
     @Autowired
