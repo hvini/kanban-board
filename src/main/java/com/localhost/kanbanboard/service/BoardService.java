@@ -5,12 +5,9 @@ import com.localhost.kanbanboard.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.localhost.kanbanboard.repository.BoardRepository;
 import com.localhost.kanbanboard.entity.BoardEntity;
-import com.localhost.kanbanboard.entity.RoleEntity;
 import com.localhost.kanbanboard.entity.UserEntity;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * BoardService
@@ -19,8 +16,6 @@ import java.util.Map;
 public class BoardService {
     @Autowired
     private BoardRepository boardRepository;
-    @Autowired
-    private RoleService roleService;
     @Autowired
     private UserService userService;
 
@@ -35,13 +30,9 @@ public class BoardService {
 
     public void create(BoardEntity boardEntity, Long userId) throws ResourceNotFoundException {
         UserEntity user = userService.getById(userId);
-        RoleEntity role = roleService.createRoleIfNotFound("admin");
-
-        Map<UserEntity, RoleEntity> boardRole = new HashMap<>();
-        boardRole.put(user, role);
 
         boardEntity.setIsFavorite(false);
-        boardEntity.setBoardRole(boardRole);
+        boardEntity.addUser(user);
         boardRepository.save(boardEntity);
     }
 
@@ -54,32 +45,7 @@ public class BoardService {
 
     public void delete(Long boardId, Long userId) throws ResourceNotFoundException, MethodArgumentNotValidException {
         BoardEntity board = getById(boardId);
-        UserEntity user = userService.getById(userId);
-
-        RoleEntity role = board.getBoardRole().get(user);
-        if(!role.getName().contains("admin"))
-            throw new MethodArgumentNotValidException("Only the board administrator can remove it!.");
 
         boardRepository.delete(board);
-    }
-
-    public void favorite(Long boardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
-        BoardEntity board = getById(boardId);
-        
-        if(board.getIsFavorite())
-            throw new MethodArgumentNotValidException("Board is already marked as favorite!.");
-
-        board.setIsFavorite(true);
-        boardRepository.save(board);
-    }
-
-    public void unfavorite(Long boardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
-        BoardEntity board = getById(boardId);
-        
-        if(!board.getIsFavorite())
-            throw new MethodArgumentNotValidException("Board is not marked as favorite!.");
-
-        board.setIsFavorite(false);
-        boardRepository.save(board);
     }
 }
