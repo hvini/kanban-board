@@ -1,16 +1,12 @@
 package com.localhost.kanbanboard.entity;
 
 import javax.validation.constraints.NotEmpty;
-import javax.persistence.ElementCollection;
-import javax.persistence.MapKeyJoinColumn;
-import javax.persistence.CollectionTable;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.JoinColumn;
-import javax.persistence.Column;
+import javax.persistence.ManyToMany;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.util.Map;
+import java.util.List;
 
 /**
  * BoardEntity
@@ -23,12 +19,8 @@ public class BoardEntity {
     @NotEmpty(message = "Nome deve ser informado!.")
     private String name;
     private Boolean isFavorite;
-    @ElementCollection
-    @CollectionTable(name = "board_role", 
-        joinColumns = @JoinColumn(name = "boardId"))
-    @MapKeyJoinColumn(name = "userId")
-    @Column(name = "role_id")
-    private Map<UserEntity, RoleEntity> boardRole;
+    @ManyToMany(mappedBy = "boards")
+    private List<UserEntity> users;
 
     public Long getBoardId() {
         return boardId;
@@ -50,12 +42,16 @@ public class BoardEntity {
         this.isFavorite = isFavorite;
     }
 
-    public Map<UserEntity, RoleEntity> getBoardRole() {
-        return boardRole;
+    public List<UserEntity> getUsers() {
+        return users;
     }
 
-    public void setBoardRole(Map<UserEntity, RoleEntity> boardRole) {
-        this.boardRole = boardRole;
+    public void setUsers(List<UserEntity> users) {
+        this.users = users;
+    }
+
+    public void addUser(UserEntity user) {
+        this.users.add(user);
     }
 
     @Override

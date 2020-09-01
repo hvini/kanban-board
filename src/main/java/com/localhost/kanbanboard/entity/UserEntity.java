@@ -2,18 +2,15 @@ package com.localhost.kanbanboard.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.validation.constraints.NotEmpty;
-import javax.persistence.ElementCollection;
-import javax.persistence.MapKeyJoinColumn;
-import javax.persistence.CollectionTable;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Entity;
-import javax.persistence.Column;
 import javax.persistence.Id;
 import java.util.List;
-import java.util.Map;
 
 /**
  * UserEntity
@@ -32,12 +29,11 @@ public class UserEntity {
     private Boolean isEnabled;
     @OneToMany(mappedBy = "user")
     private List<ConfirmationTokenEntity> confirmationToken;
-    @ElementCollection
-    @CollectionTable(name = "board_role",
-        joinColumns = @JoinColumn(name = "userId"))
-    @MapKeyJoinColumn(name = "boardId")
-    @Column(name = "role_id")
-    private Map<BoardEntity, RoleEntity> boardRole;
+    @ManyToMany
+    @JoinTable(name = "user_boards",
+        joinColumns = @JoinColumn(name = "userId", referencedColumnName = "userId"),
+        inverseJoinColumns = @JoinColumn(name = "boardId", referencedColumnName = "boardId"))
+    private List<BoardEntity> boards;
 
     public Long getUserId() {
         return userId;
@@ -74,14 +70,6 @@ public class UserEntity {
     public void setIsEnabled(Boolean isEnabled) {
         this.isEnabled = isEnabled;
     }
-
-    public Map<BoardEntity, RoleEntity> getBoardRole() {
-        return boardRole;
-    }
-
-    public void setBoardRole(Map<BoardEntity, RoleEntity> boardRole) {
-        this.boardRole = boardRole;
-    }
     
     @JsonIgnore
     public List<ConfirmationTokenEntity> getConfirmationToken() {
@@ -94,5 +82,14 @@ public class UserEntity {
 
     public void addConfirmationToken(ConfirmationTokenEntity confirmationToken) {
         this.confirmationToken.add(confirmationToken);
+    }
+
+    @JsonIgnore
+    public List<BoardEntity> getBoards() {
+        return boards;
+    }
+
+    public void setBoards(List<BoardEntity> boards) {
+        this.boards = boards;
     }
 }
