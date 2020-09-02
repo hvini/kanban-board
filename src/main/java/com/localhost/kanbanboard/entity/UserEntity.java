@@ -4,12 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.validation.constraints.NotEmpty;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
-import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,11 +28,12 @@ public class UserEntity {
     private Boolean isEnabled;
     @OneToMany(mappedBy = "user")
     private List<ConfirmationTokenEntity> confirmationToken;
-    @ManyToMany
-    @JoinTable(name = "user_boards",
-        joinColumns = @JoinColumn(name = "userId", referencedColumnName = "userId"),
-        inverseJoinColumns = @JoinColumn(name = "boardId", referencedColumnName = "boardId"))
+    @ManyToMany(mappedBy = "users")
     private List<BoardEntity> boards;
+
+    public UserEntity() {
+        this.boards = new ArrayList<>();
+    }
 
     public Long getUserId() {
         return userId;
@@ -84,7 +84,6 @@ public class UserEntity {
         this.confirmationToken.add(confirmationToken);
     }
 
-    @JsonIgnore
     public List<BoardEntity> getBoards() {
         return boards;
     }

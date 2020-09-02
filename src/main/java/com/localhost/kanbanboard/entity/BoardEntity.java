@@ -1,11 +1,15 @@
 package com.localhost.kanbanboard.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.validation.constraints.NotEmpty;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.ManyToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,11 +23,22 @@ public class BoardEntity {
     @NotEmpty(message = "Nome deve ser informado!.")
     private String name;
     private Boolean isFavorite;
-    @ManyToMany(mappedBy = "boards")
+    @ManyToMany
+    @JoinTable(name = "user_boards",
+        joinColumns = @JoinColumn(name = "boardId", referencedColumnName = "boardId"),
+        inverseJoinColumns = @JoinColumn(name = "userId", referencedColumnName = "userId"))
     private List<UserEntity> users;
+
+    public BoardEntity() {
+        this.users = new ArrayList<>();
+    }
 
     public Long getBoardId() {
         return boardId;
+    }
+
+    public void setBoardId(Long boardId) {
+        this.boardId = boardId;
     }
 
     public String getName() {
@@ -42,6 +57,7 @@ public class BoardEntity {
         this.isFavorite = isFavorite;
     }
 
+    @JsonIgnore
     public List<UserEntity> getUsers() {
         return users;
     }

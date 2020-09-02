@@ -1,6 +1,5 @@
 package com.localhost.kanbanboard.service;
 
-import com.localhost.kanbanboard.exception.MethodArgumentNotValidException;
 import com.localhost.kanbanboard.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.localhost.kanbanboard.repository.BoardRepository;
@@ -43,7 +42,7 @@ public class BoardService {
         boardRepository.save(board);
     }
 
-    public void delete(Long boardId, Long userId) throws ResourceNotFoundException, MethodArgumentNotValidException {
+    public void delete(Long boardId) throws ResourceNotFoundException {
         BoardEntity board = getById(boardId);
 
         boardRepository.delete(board);
