@@ -25,7 +25,6 @@ public class BoardEntityTest {
     public void setUp() {
         board = new BoardEntity();
         board.setName("teste");
-        board.setIsFavorite(false);
     }
 
     @Test
@@ -46,11 +45,11 @@ public class BoardEntityTest {
         BoardEntity saved = em.persistFlushFind(board);
 
         //when
-        saved.setIsFavorite(true);
+        saved.setName("teste2");
         BoardEntity updatedSaved = em.persistFlushFind(saved);
 
         //then
-        assertEquals(true, updatedSaved.getIsFavorite());
+        assertEquals("teste2", updatedSaved.getName());
     }
 
     @Test

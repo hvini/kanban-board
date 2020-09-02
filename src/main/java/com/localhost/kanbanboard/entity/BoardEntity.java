@@ -22,7 +22,6 @@ public class BoardEntity {
     private Long boardId;
     @NotEmpty(message = "Nome deve ser informado!.")
     private String name;
-    private Boolean isFavorite;
     @ManyToMany
     @JoinTable(name = "user_boards",
         joinColumns = @JoinColumn(name = "boardId", referencedColumnName = "boardId"),
@@ -47,14 +46,6 @@ public class BoardEntity {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Boolean getIsFavorite() {
-        return isFavorite;
-    }
-
-    public void setIsFavorite(Boolean isFavorite) {
-        this.isFavorite = isFavorite;
     }
 
     @JsonIgnore

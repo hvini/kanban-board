@@ -2,6 +2,8 @@ package com.localhost.kanbanboard.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.validation.constraints.NotEmpty;
+import javax.persistence.ElementCollection;
+import javax.persistence.CollectionTable;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.ManyToMany;
@@ -30,9 +32,13 @@ public class UserEntity {
     private List<ConfirmationTokenEntity> confirmationToken;
     @ManyToMany(mappedBy = "users")
     private List<BoardEntity> boards;
+    @ElementCollection
+    @CollectionTable(name = "favorite_boards")
+    List<BoardEntity> favoriteBoards;
 
     public UserEntity() {
         this.boards = new ArrayList<>();
+        this.favoriteBoards = new ArrayList<>();
     }
 
     public Long getUserId() {
@@ -90,5 +96,21 @@ public class UserEntity {
 
     public void setBoards(List<BoardEntity> boards) {
         this.boards = boards;
+    }
+
+    public List<BoardEntity> getFavoriteBoards() {
+        return favoriteBoards;
+    }
+
+    public void setFavoriteBoards(List<BoardEntity> favoriteBoards) {
+        this.favoriteBoards = favoriteBoards;
+    }
+
+    public void addFavoriteBoard(BoardEntity board) {
+        this.favoriteBoards.add(board);
+    }
+
+    public void removeFavoriteBoard(BoardEntity board) {
+        this.favoriteBoards.remove(board);
     }
 }

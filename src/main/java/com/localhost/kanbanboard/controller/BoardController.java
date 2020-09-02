@@ -1,5 +1,6 @@
 package com.localhost.kanbanboard.controller;
 
+import com.localhost.kanbanboard.exception.MethodArgumentNotValidException;
 import com.localhost.kanbanboard.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,6 +53,30 @@ public class BoardController {
             return new ResponseEntity<>(HttpStatus.OK);
         } catch(ResourceNotFoundException ex) {
             throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
+        }
+    }
+
+    @PutMapping("/board/{boardId}/favorite/")
+    public ResponseEntity<?> favorite(@PathVariable("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
+        try {
+            boardService.favorite(userId, boardId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch(ResourceNotFoundException ex) {
+            throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
+        } catch(MethodArgumentNotValidException ex) {
+            throw new MethodArgumentNotValidException(ex.getLocalizedMessage(), ex);
+        }
+    }
+
+    @PutMapping("/board/{boardId}/unfavorite/")
+    public ResponseEntity<?> unfavorite(@PathVariable("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
+        try {
+            boardService.unfavorite(userId, boardId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch(ResourceNotFoundException ex) {
+            throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
+        } catch(MethodArgumentNotValidException ex) {
+            throw new MethodArgumentNotValidException(ex.getLocalizedMessage(), ex);
         }
     }
 }

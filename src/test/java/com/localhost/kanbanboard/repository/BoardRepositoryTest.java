@@ -24,7 +24,6 @@ public class BoardRepositoryTest {
     public void setUp() {
         board = new BoardEntity();
         board.setName("teste");
-        board.setIsFavorite(false);
     }
 
     @Test
@@ -52,10 +51,10 @@ public class BoardRepositoryTest {
         Optional<BoardEntity> searched = boardRepository.findById(board.getBoardId());
 
         //when
-        searched.get().setIsFavorite(true);
+        searched.get().setName("teste2");
 
         //then
-        assertNotEquals(false, searched.get().getIsFavorite());
+        assertNotEquals("teste1", searched.get().getName());
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.localhost.kanbanboard.service;
 
+import com.localhost.kanbanboard.exception.MethodArgumentNotValidException;
 import com.localhost.kanbanboard.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.localhost.kanbanboard.repository.BoardRepository;
@@ -30,7 +31,6 @@ public class BoardService {
     public void create(BoardEntity boardEntity, Long userId) throws ResourceNotFoundException {
         UserEntity user = userService.getById(userId);
 
-        boardEntity.setIsFavorite(false);
         boardEntity.addUser(user);
         boardRepository.save(boardEntity);
     }
@@ -46,5 +46,19 @@ public class BoardService {
         BoardEntity board = getById(boardId);
 
         boardRepository.delete(board);
+    }
+
+    public void favorite(Long userId, Long boardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
+        UserEntity user = userService.getById(userId);
+        BoardEntity board = getById(boardId);
+
+        userService.addBoardToFavorite(user, board);
+    }
+
+    public void unfavorite(Long userId, Long boardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
+        UserEntity user = userService.getById(userId);
+        BoardEntity board = getById(boardId);
+
+        userService.removeBoardFromFavorite(user, board);
     }
 }

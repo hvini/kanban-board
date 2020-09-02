@@ -12,6 +12,7 @@ import com.localhost.kanbanboard.entity.ConfirmationTokenEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.localhost.kanbanboard.repository.UserRepository;
 import com.localhost.kanbanboard.entity.AuthRequest;
+import com.localhost.kanbanboard.entity.BoardEntity;
 import com.localhost.kanbanboard.entity.UserEntity;
 import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
@@ -132,6 +133,29 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
 
         confirmationTokenService.removeConfirmationToken(confirmationToken);
+    }
+
+    public void addBoardToFavorite(UserEntity user, BoardEntity board) throws MethodArgumentNotValidException {
+        for(int i = 0; i < user.getFavoriteBoards().size(); i++) {
+            if(user.getFavoriteBoards().get(i).equals(board))
+                throw new MethodArgumentNotValidException("Board is already in favorites!.");
+        }
+
+        user.addFavoriteBoard(board);
+        userRepository.save(user);
+    }
+
+    public void removeBoardFromFavorite(UserEntity user, BoardEntity board) throws MethodArgumentNotValidException, ResourceNotFoundException {
+        if(user.getFavoriteBoards().isEmpty())
+            throw new ResourceNotFoundException("There is no board in your favorite list!.");
+
+        for(int i = 0; i < user.getFavoriteBoards().size(); i++) {
+            if(!user.getFavoriteBoards().get(i).equals(board))
+                throw new MethodArgumentNotValidException("Board is not in favorites!.");
+        }
+
+        user.removeFavoriteBoard(board);
+        userRepository.save(user);
     }
     
     private void sendConfirmationMail(String userMail, String token) throws IOException {
