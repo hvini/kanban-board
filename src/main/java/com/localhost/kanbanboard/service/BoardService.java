@@ -46,9 +46,18 @@ public class BoardService {
         boardRepository.save(board);
     }
 
-    public void delete(Long boardId) throws ResourceNotFoundException {
+    public void delete(Long boardId, Long userId) throws ResourceNotFoundException, MethodArgumentNotValidException {
         BoardEntity board = getById(boardId);
+        UserEntity user = userService.getById(userId);
 
+        for(int i = 0; i < user.getRoles().size(); i++) {
+            if(user.getRoles().get(i).getBoard().equals(board)) {
+                if(!user.getRoles().get(i).getName().contains("admin"))
+                    throw new MethodArgumentNotValidException("Only the administrator can delete the board!.");
+            }
+        }
+
+        removeAllConstraints(board);
         boardRepository.delete(board);
     }
 
@@ -64,5 +73,12 @@ public class BoardService {
         BoardEntity board = getById(boardId);
 
         userService.removeBoardFromFavorite(user, board);
+    }
+
+    private void removeAllConstraints(BoardEntity board) {
+        // removing all users role in the board.
+        for(int i = 0; i < board.getRoles().size(); i++) {
+            roleService.remove(board.getRoles().get(i));
+        }
     }
 }

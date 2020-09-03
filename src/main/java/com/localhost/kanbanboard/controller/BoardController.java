@@ -47,12 +47,14 @@ public class BoardController {
     }
 
     @DeleteMapping("/board/{boardId}/delete/")
-    public ResponseEntity<?> delete(@PathVariable("boardId") Long boardId) throws Exception {
+    public ResponseEntity<?> delete(@PathVariable("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
         try {
-            boardService.delete(boardId);
+            boardService.delete(boardId, userId);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch(ResourceNotFoundException ex) {
             throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
+        } catch(MethodArgumentNotValidException ex) {
+            throw new MethodArgumentNotValidException(ex.getLocalizedMessage(), ex);
         }
     }
 
