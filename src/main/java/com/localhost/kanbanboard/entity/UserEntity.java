@@ -34,11 +34,14 @@ public class UserEntity {
     private List<BoardEntity> boards;
     @ElementCollection
     @CollectionTable(name = "favorite_boards")
-    List<BoardEntity> favoriteBoards;
+    private List<BoardEntity> favoriteBoards;
+    @OneToMany(mappedBy = "user")
+    private List<RoleEntity> roles;
 
     public UserEntity() {
         this.boards = new ArrayList<>();
         this.favoriteBoards = new ArrayList<>();
+        this.roles = new ArrayList<>();
     }
 
     public Long getUserId() {
@@ -112,5 +115,13 @@ public class UserEntity {
 
     public void removeFavoriteBoard(BoardEntity board) {
         this.favoriteBoards.remove(board);
+    }
+
+    public List<RoleEntity> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<RoleEntity> roles) {
+        this.roles = roles;
     }
 }

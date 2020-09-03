@@ -18,6 +18,8 @@ public class BoardService {
     private BoardRepository boardRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private RoleService roleService;
 
     public BoardEntity getById(Long boardId) throws ResourceNotFoundException {
         Optional<BoardEntity> board = boardRepository.findById(boardId);
@@ -33,6 +35,8 @@ public class BoardService {
 
         boardEntity.addUser(user);
         boardRepository.save(boardEntity);
+
+        roleService.create("admin", user, boardEntity);
     }
 
     public void update(BoardEntity boardEntity) throws ResourceNotFoundException {

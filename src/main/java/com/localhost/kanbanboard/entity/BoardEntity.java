@@ -7,6 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.ManyToMany;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.OneToMany;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.util.ArrayList;
@@ -27,9 +28,12 @@ public class BoardEntity {
         joinColumns = @JoinColumn(name = "boardId", referencedColumnName = "boardId"),
         inverseJoinColumns = @JoinColumn(name = "userId", referencedColumnName = "userId"))
     private List<UserEntity> users;
+    @OneToMany(mappedBy = "board")
+    private List<RoleEntity> roles;
 
     public BoardEntity() {
         this.users = new ArrayList<>();
+        this.roles = new ArrayList<>();
     }
 
     public Long getBoardId() {
@@ -59,6 +63,15 @@ public class BoardEntity {
 
     public void addUser(UserEntity user) {
         this.users.add(user);
+    }
+
+    @JsonIgnore
+    public List<RoleEntity> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<RoleEntity> roles) {
+        this.roles = roles;
     }
 
     @Override

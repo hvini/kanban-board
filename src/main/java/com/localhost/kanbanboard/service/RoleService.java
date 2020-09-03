@@ -2,7 +2,9 @@ package com.localhost.kanbanboard.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import com.localhost.kanbanboard.repository.RoleRepository;
+import com.localhost.kanbanboard.entity.BoardEntity;
 import com.localhost.kanbanboard.entity.RoleEntity;
+import com.localhost.kanbanboard.entity.UserEntity;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,13 +15,14 @@ public class RoleService {
     @Autowired
     private RoleRepository roleRepository;
 
-    public RoleEntity createRoleIfNotFound(String name) {
-        RoleEntity role = roleRepository.findByName(name);
-        if(role == null) {
-            role = new RoleEntity();
-            role.setName(name);
-            roleRepository.save(role);
-        }
+    public RoleEntity create(String name, UserEntity user, BoardEntity board) {
+        RoleEntity role = new RoleEntity();
+
+        role.setName(name);
+        role.setUser(user);
+        role.setBoard(board);
+        roleRepository.save(role);
+        
         return role;
     }
 }

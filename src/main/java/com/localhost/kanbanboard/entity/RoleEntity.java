@@ -1,8 +1,12 @@
 package com.localhost.kanbanboard.entity;
 
 import javax.validation.constraints.NotEmpty;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -16,6 +20,12 @@ public class RoleEntity {
     private Long roleId;
     @NotEmpty(message = "Nome deve ser informado!.")
     private String name;
+    @ManyToOne
+    @JoinColumn(name = "userId", nullable = false)
+    private UserEntity user;
+    @ManyToOne()
+    @JoinColumn(name = "boardId", nullable = false)
+    private BoardEntity board;
 
     public Long getRoleId() {
         return roleId;
@@ -27,6 +37,23 @@ public class RoleEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @JsonIgnore
+    public UserEntity getUser() {
+        return user;
+    }
+
+    public void setUser(UserEntity user) {
+        this.user = user;
+    }
+
+    public BoardEntity getBoard() {
+        return board;
+    }
+
+    public void setBoard(BoardEntity board) {
+        this.board = board;
     }
 
     @Override
