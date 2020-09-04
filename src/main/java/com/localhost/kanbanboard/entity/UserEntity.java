@@ -37,11 +37,14 @@ public class UserEntity {
     private List<BoardEntity> favoriteBoards;
     @OneToMany(mappedBy = "user")
     private List<RoleEntity> roles;
+    @OneToMany(mappedBy = "user")
+    private List<BoardInvitationEntity> boardInvitations;
 
     public UserEntity() {
         this.boards = new ArrayList<>();
         this.favoriteBoards = new ArrayList<>();
         this.roles = new ArrayList<>();
+        this.boardInvitations = new ArrayList<>();
     }
 
     public Long getUserId() {
@@ -123,5 +126,14 @@ public class UserEntity {
 
     public void setRoles(List<RoleEntity> roles) {
         this.roles = roles;
+    }
+
+    @JsonIgnore
+    public List<BoardInvitationEntity> getBoardInvitations() {
+        return boardInvitations;
+    }
+
+    public void setBoardInvitations(List<BoardInvitationEntity> boardInvitations) {
+        this.boardInvitations = boardInvitations;
     }
 }
