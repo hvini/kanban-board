@@ -3,17 +3,15 @@ package com.localhost.kanbanboard.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.validation.constraints.NotEmpty;
 import javax.persistence.ElementCollection;
-import javax.persistence.MapKeyJoinColumn;
 import javax.persistence.CollectionTable;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Entity;
-import javax.persistence.Column;
 import javax.persistence.Id;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * UserEntity
@@ -32,12 +30,22 @@ public class UserEntity {
     private Boolean isEnabled;
     @OneToMany(mappedBy = "user")
     private List<ConfirmationTokenEntity> confirmationToken;
+    @ManyToMany(mappedBy = "users")
+    private List<BoardEntity> boards;
     @ElementCollection
-    @CollectionTable(name = "board_role",
-        joinColumns = @JoinColumn(name = "userId"))
-    @MapKeyJoinColumn(name = "boardId")
-    @Column(name = "role_id")
-    private Map<BoardEntity, RoleEntity> boardRole;
+    @CollectionTable(name = "favorite_boards")
+    private List<BoardEntity> favoriteBoards;
+    @OneToMany(mappedBy = "user")
+    private List<RoleEntity> roles;
+    @OneToMany(mappedBy = "user")
+    private List<BoardInvitationEntity> boardInvitations;
+
+    public UserEntity() {
+        this.boards = new ArrayList<>();
+        this.favoriteBoards = new ArrayList<>();
+        this.roles = new ArrayList<>();
+        this.boardInvitations = new ArrayList<>();
+    }
 
     public Long getUserId() {
         return userId;
@@ -74,14 +82,6 @@ public class UserEntity {
     public void setIsEnabled(Boolean isEnabled) {
         this.isEnabled = isEnabled;
     }
-
-    public Map<BoardEntity, RoleEntity> getBoardRole() {
-        return boardRole;
-    }
-
-    public void setBoardRole(Map<BoardEntity, RoleEntity> boardRole) {
-        this.boardRole = boardRole;
-    }
     
     @JsonIgnore
     public List<ConfirmationTokenEntity> getConfirmationToken() {
@@ -94,5 +94,46 @@ public class UserEntity {
 
     public void addConfirmationToken(ConfirmationTokenEntity confirmationToken) {
         this.confirmationToken.add(confirmationToken);
+    }
+
+    public List<BoardEntity> getBoards() {
+        return boards;
+    }
+
+    public void setBoards(List<BoardEntity> boards) {
+        this.boards = boards;
+    }
+
+    public List<BoardEntity> getFavoriteBoards() {
+        return favoriteBoards;
+    }
+
+    public void setFavoriteBoards(List<BoardEntity> favoriteBoards) {
+        this.favoriteBoards = favoriteBoards;
+    }
+
+    public void addFavoriteBoard(BoardEntity board) {
+        this.favoriteBoards.add(board);
+    }
+
+    public void removeFavoriteBoard(BoardEntity board) {
+        this.favoriteBoards.remove(board);
+    }
+
+    public List<RoleEntity> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<RoleEntity> roles) {
+        this.roles = roles;
+    }
+
+    @JsonIgnore
+    public List<BoardInvitationEntity> getBoardInvitations() {
+        return boardInvitations;
+    }
+
+    public void setBoardInvitations(List<BoardInvitationEntity> boardInvitations) {
+        this.boardInvitations = boardInvitations;
     }
 }

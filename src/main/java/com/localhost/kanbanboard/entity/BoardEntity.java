@@ -1,16 +1,17 @@
 package com.localhost.kanbanboard.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.validation.constraints.NotEmpty;
-import javax.persistence.ElementCollection;
-import javax.persistence.MapKeyJoinColumn;
-import javax.persistence.CollectionTable;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.ManyToMany;
 import javax.persistence.JoinColumn;
-import javax.persistence.Column;
+import javax.persistence.JoinTable;
+import javax.persistence.OneToMany;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * BoardEntity
@@ -22,16 +23,28 @@ public class BoardEntity {
     private Long boardId;
     @NotEmpty(message = "Nome deve ser informado!.")
     private String name;
-    private Boolean isFavorite;
-    @ElementCollection
-    @CollectionTable(name = "board_role", 
-        joinColumns = @JoinColumn(name = "boardId"))
-    @MapKeyJoinColumn(name = "userId")
-    @Column(name = "role_id")
-    private Map<UserEntity, RoleEntity> boardRole;
+    @ManyToMany
+    @JoinTable(name = "user_boards",
+        joinColumns = @JoinColumn(name = "boardId", referencedColumnName = "boardId"),
+        inverseJoinColumns = @JoinColumn(name = "userId", referencedColumnName = "userId"))
+    private List<UserEntity> users;
+    @OneToMany(mappedBy = "board")
+    private List<RoleEntity> roles;
+    @OneToMany(mappedBy = "board")
+    private List<BoardInvitationEntity> boardInvitations;
+
+    public BoardEntity() {
+        this.users = new ArrayList<>();
+        this.roles = new ArrayList<>();
+        this.boardInvitations = new ArrayList<>();
+    }
 
     public Long getBoardId() {
         return boardId;
+    }
+
+    public void setBoardId(Long boardId) {
+        this.boardId = boardId;
     }
 
     public String getName() {
@@ -42,20 +55,35 @@ public class BoardEntity {
         this.name = name;
     }
 
-    public Boolean getIsFavorite() {
-        return isFavorite;
+    @JsonIgnore
+    public List<UserEntity> getUsers() {
+        return users;
     }
 
-    public void setIsFavorite(Boolean isFavorite) {
-        this.isFavorite = isFavorite;
+    public void setUsers(List<UserEntity> users) {
+        this.users = users;
     }
 
-    public Map<UserEntity, RoleEntity> getBoardRole() {
-        return boardRole;
+    public void addUser(UserEntity user) {
+        this.users.add(user);
     }
 
-    public void setBoardRole(Map<UserEntity, RoleEntity> boardRole) {
-        this.boardRole = boardRole;
+    @JsonIgnore
+    public List<RoleEntity> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<RoleEntity> roles) {
+        this.roles = roles;
+    }
+
+    @JsonIgnore
+    public List<BoardInvitationEntity> getBoardInvitations() {
+        return boardInvitations;
+    }
+
+    public void setBoardInvitations(List<BoardInvitationEntity> boardInvitations) {
+        this.boardInvitations = boardInvitations;
     }
 
     @Override
