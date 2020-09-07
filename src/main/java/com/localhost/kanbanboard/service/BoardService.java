@@ -5,6 +5,7 @@ import com.localhost.kanbanboard.exception.ResourceNotFoundException;
 import com.localhost.kanbanboard.entity.ConfirmationTokenEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.localhost.kanbanboard.repository.BoardRepository;
+import org.springframework.scheduling.annotation.Async;
 import com.localhost.kanbanboard.entity.BoardEntity;
 import com.localhost.kanbanboard.entity.UserEntity;
 import com.sendgrid.helpers.mail.objects.Content;
@@ -43,6 +44,7 @@ public class BoardService {
         return board.get();
     }
 
+    @Async("threadPoolTaskExecutor")
     public void create(BoardEntity boardEntity, Long userId) throws ResourceNotFoundException {
         UserEntity user = userService.getById(userId);
 
@@ -52,6 +54,7 @@ public class BoardService {
         roleService.create("admin", user, boardEntity);
     }
 
+    @Async("threadPoolTaskExecutor")
     public void update(BoardEntity boardEntity) throws ResourceNotFoundException {
         BoardEntity board = getById(boardEntity.getBoardId());
 
@@ -59,6 +62,7 @@ public class BoardService {
         boardRepository.save(board);
     }
 
+    @Async("threadPoolTaskExecutor")
     public void delete(Long boardId, Long userId) throws ResourceNotFoundException, MethodArgumentNotValidException {
         BoardEntity board = getById(boardId);
         UserEntity user = userService.getById(userId);
@@ -74,6 +78,7 @@ public class BoardService {
         boardRepository.delete(board);
     }
 
+    @Async("threadPoolTaskExecutor")
     public void favorite(Long userId, Long boardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
         UserEntity user = userService.getById(userId);
         BoardEntity board = getById(boardId);
@@ -81,6 +86,7 @@ public class BoardService {
         userService.addBoardToFavorite(user, board);
     }
 
+    @Async("threadPoolTaskExecutor")
     public void unfavorite(Long userId, Long boardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
         UserEntity user = userService.getById(userId);
         BoardEntity board = getById(boardId);
@@ -88,6 +94,7 @@ public class BoardService {
         userService.removeBoardFromFavorite(user, board);
     }
 
+    @Async("threadPoolTaskExecutor")
     public void inviteUserToBoard(String collaboratorEmail, Long boardId) throws IOException, ResourceNotFoundException, MethodArgumentNotValidException {
         UserEntity user = userService.getByEmail(collaboratorEmail);
         BoardEntity board = getById(boardId);
@@ -108,6 +115,7 @@ public class BoardService {
         sendInvitationEmail(collaboratorEmail, confirmationToken.getToken(), board);
     }
 
+    @Async("threadPoolTaskExecutor")
     public void acceptInvitation(ConfirmationTokenEntity confirmationToken, Long boardId) throws MethodArgumentNotValidException, ResourceNotFoundException {
         UserEntity user = confirmationToken.getUser();
         BoardEntity board = getById(boardId);

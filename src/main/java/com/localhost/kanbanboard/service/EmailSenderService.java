@@ -20,7 +20,7 @@ public class EmailSenderService {
     @Value("${sendgrid.api.key}")
     private String apiKey;
 
-    @Async
+    @Async("threadPoolTaskExecutor")
     public void sendEmail(Email from, String subject, Email to, Content content) throws IOException {
         Mail mail = new Mail(from, subject, to, content);
         SendGrid sg = new SendGrid(apiKey);
