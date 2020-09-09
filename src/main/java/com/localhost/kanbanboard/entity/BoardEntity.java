@@ -48,11 +48,15 @@ public class BoardEntity {
     @OneToMany(mappedBy = "board")
     private List<ActivityEntity> activities;
 
+    @OneToMany(mappedBy = "board")
+    private List<ListEntity> lists;
+
     public BoardEntity() {
         this.users = new ArrayList<>();
         this.roles = new ArrayList<>();
         this.boardInvitations = new ArrayList<>();
         this.activities = new ArrayList<>();
+        this.lists = new ArrayList<>();
     }
 
     public void addUser(UserEntity user) {
