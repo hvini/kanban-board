@@ -45,10 +45,14 @@ public class BoardEntity {
     @Getter(onMethod = @__(@JsonIgnore))
     private List<BoardInvitationEntity> boardInvitations;
 
+    @OneToMany(mappedBy = "board")
+    private List<ActivityEntity> activities;
+
     public BoardEntity() {
         this.users = new ArrayList<>();
         this.roles = new ArrayList<>();
         this.boardInvitations = new ArrayList<>();
+        this.activities = new ArrayList<>();
     }
 
     public void addUser(UserEntity user) {
