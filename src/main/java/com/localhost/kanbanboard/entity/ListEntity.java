@@ -1,5 +1,6 @@
 package com.localhost.kanbanboard.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.validation.constraints.NotEmpty;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -29,5 +30,6 @@ public class ListEntity {
 
     @ManyToOne
     @JoinColumn(name = "boardId", nullable = false)
+    @Getter(onMethod = @__(@JsonIgnore))
     private BoardEntity board;
 }
