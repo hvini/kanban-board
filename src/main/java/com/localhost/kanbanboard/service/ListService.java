@@ -1,5 +1,6 @@
 package com.localhost.kanbanboard.service;
 
+import com.localhost.kanbanboard.exception.MethodArgumentNotValidException;
 import com.localhost.kanbanboard.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.localhost.kanbanboard.repository.ListRepository;
@@ -8,6 +9,8 @@ import com.localhost.kanbanboard.entity.BoardEntity;
 import com.localhost.kanbanboard.entity.ListEntity;
 import com.localhost.kanbanboard.entity.UserEntity;
 import org.springframework.stereotype.Service;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.Optional;
 
 /**
@@ -34,23 +37,36 @@ public class ListService {
     }
 
     @Async("threadPoolTaskExecutor")
-    public void create(ListEntity list, Long boardId, Long userId) throws ResourceNotFoundException { 
+    public Future<?> create(ListEntity list, Long boardId, Long userId) throws ResourceNotFoundException, MethodArgumentNotValidException { 
         BoardEntity board = boardService.getById(boardId);
         UserEntity user   = userService.getById(userId);
         String text       = user.getFullName() + " adicionou " + list.getName() + " a este quadro";
+
+        if(!userIsInTheBoard(user, board))
+            throw new MethodArgumentNotValidException("User does not belong to this board!.");
 
         list.setBoard(board);
         listRepository.save(list);
 
         activityService.create(text, board);
+        return CompletableFuture.completedFuture(null);
     }
 
     @Async("threadPoolTaskExecutor")
-    public void update(ListEntity listEntity) throws ResourceNotFoundException {
+    public Future<?> update(ListEntity listEntity) throws ResourceNotFoundException {
         ListEntity list = getById(listEntity.getListId());
 
         list.setName(listEntity.getName());
         list.setPosition(listEntity.getPosition());
         listRepository.save(list);
+        return CompletableFuture.completedFuture(null);
+    }
+
+    private Boolean userIsInTheBoard(UserEntity user, BoardEntity board) {
+        for(int i = 0; i < user.getBoards().size(); i++) {
+            if(user.getBoards().get(i).getBoardId().equals(board.getBoardId()))
+                return true;
+        }
+        return false;
     }
 }

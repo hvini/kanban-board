@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.FetchType;
 import lombok.EqualsAndHashCode;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -42,7 +43,7 @@ public class UserEntity {
     @Getter(onMethod = @__(@JsonIgnore))
     private List<ConfirmationTokenEntity> confirmationToken;
 
-    @ManyToMany(mappedBy = "users")
+    @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
     private List<BoardEntity> boards;
 
     @ElementCollection
