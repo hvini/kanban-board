@@ -2,8 +2,10 @@ package com.localhost.kanbanboard.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.validation.constraints.NotEmpty;
+import org.hibernate.annotations.FetchMode;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import org.hibernate.annotations.Fetch;
 import javax.persistence.ManyToMany;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -31,7 +33,8 @@ public class BoardEntity {
     @NotEmpty(message = "Nome deve ser informado!.")
     private String name;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
     @JoinTable(name = "user_boards",
         joinColumns = @JoinColumn(name = "boardId", referencedColumnName = "boardId"),
         inverseJoinColumns = @JoinColumn(name = "userId", referencedColumnName = "userId"))
@@ -39,10 +42,12 @@ public class BoardEntity {
     private List<UserEntity> users;
 
     @OneToMany(mappedBy = "board", fetch = FetchType.EAGER, orphanRemoval = true)
+    @Fetch(FetchMode.SUBSELECT)
     @Getter(onMethod = @__(@JsonIgnore))
     private List<RoleEntity> roles;
 
-    @OneToMany(mappedBy = "board", orphanRemoval = true)
+    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER, orphanRemoval = true)
+    @Fetch(FetchMode.SUBSELECT)
     @Getter(onMethod = @__(@JsonIgnore))
     private List<BoardInvitationEntity> boardInvitations;
 

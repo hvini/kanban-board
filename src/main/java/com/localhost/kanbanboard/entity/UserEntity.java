@@ -58,7 +58,8 @@ public class UserEntity {
     @Fetch(FetchMode.SUBSELECT)
     private List<RoleEntity> roles;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
     @Getter(onMethod = @__(@JsonIgnore))
     private List<BoardInvitationEntity> boardInvitations;
 

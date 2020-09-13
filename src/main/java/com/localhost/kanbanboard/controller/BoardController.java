@@ -107,29 +107,38 @@ public class BoardController {
 
     @PostMapping("/board/send-invitation/")
     public ResponseEntity<?> sendInvitation(@RequestParam("collaboratorEmail") String collaboratorEmail, @RequestParam("boardId") Long boardId) throws Exception {
+        Future<?> board = boardService.inviteUserToBoard(collaboratorEmail, boardId);
         try {
-            boardService.inviteUserToBoard(collaboratorEmail, boardId);
+            board.get();
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch(IOException ex) {
-            throw new IOException(ex.getLocalizedMessage(), ex);
-        } catch(ResourceNotFoundException ex) {
-            throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
-        } catch(MethodArgumentNotValidException ex) {
-            throw new MethodArgumentNotValidException(ex.getLocalizedMessage(), ex);
+        } catch(InterruptedException | CancellationException| ExecutionException ex) {
+            if(ex.getCause() instanceof ResourceNotFoundException) {
+                throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
+            } else if(ex.getCause() instanceof MethodArgumentNotValidException) {
+                throw new MethodArgumentNotValidException(ex.getLocalizedMessage(), ex);
+            } else if(ex.getCause() instanceof IOException)
+                throw new IOException(ex.getLocalizedMessage(), ex);
+            throw new Exception(ex.getLocalizedMessage(), ex);
         }
     }
 
     @PostMapping("/board/invitation/{token}/")
     public ResponseEntity<?> acceptInvitation(@PathVariable("token") String token, @RequestParam("boardId") Long boardId) throws Exception {
         try {
-            ConfirmationTokenEntity confirmationToken = confirmationTokenService.getByToken(token);
-            
-            boardService.acceptInvitation(confirmationToken, boardId);
-            return new ResponseEntity<>(HttpStatus.OK);
+            ConfirmationTokenEntity confirmationToken = confirmationTokenService.getByToken(token);   
+            Future<?> board = boardService.acceptInvitation(confirmationToken, boardId);
+            try {
+                board.get();
+                return new ResponseEntity<>(HttpStatus.OK);
+            } catch(InterruptedException | CancellationException| ExecutionException ex) {
+                if(ex.getCause() instanceof ResourceNotFoundException) {
+                    throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
+                } else if(ex.getCause() instanceof MethodArgumentNotValidException)
+                    throw new MethodArgumentNotValidException(ex.getLocalizedMessage(), ex);
+                throw new Exception(ex.getLocalizedMessage(), ex);
+            }
         } catch(ResourceNotFoundException ex) {
             throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
-        } catch(MethodArgumentNotValidException ex) {
-            throw new MethodArgumentNotValidException(ex.getLocalizedMessage(), ex);
         }
     }
 }

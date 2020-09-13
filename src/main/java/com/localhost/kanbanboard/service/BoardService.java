@@ -81,6 +81,15 @@ public class BoardService {
             }
         }
 
+        for(int i = 0; i < board.getUsers().size(); i++) {
+            if(!board.getUsers().get(i).getFavoriteBoards().isEmpty()) {
+                for(int j = 0; j < board.getUsers().get(i).getFavoriteBoards().size(); j++) {
+                    if(board.getUsers().get(i).getFavoriteBoards().get(j).getBoardId().equals(board.getBoardId()))
+                        userService.removeBoardFromFavorite(board.getUsers().get(i), board);
+                }
+            }
+        }
+
         boardRepository.delete(board);
         return CompletableFuture.completedFuture(null);
     }
@@ -104,17 +113,17 @@ public class BoardService {
     }
 
     @Async("threadPoolTaskExecutor")
-    public void inviteUserToBoard(String collaboratorEmail, Long boardId) throws IOException, ResourceNotFoundException, MethodArgumentNotValidException {
+    public Future<?> inviteUserToBoard(String collaboratorEmail, Long boardId) throws IOException, ResourceNotFoundException, MethodArgumentNotValidException {
         UserEntity user = userService.getByEmail(collaboratorEmail);
         BoardEntity board = getById(boardId);
 
-        if(board.getUsers().contains(user))
-            throw new MethodArgumentNotValidException("User is already a board member!.");
-
-        for(int i = 0; i < board.getBoardInvitations().size(); i++) {
-            if(board.getBoardInvitations().get(i).getUser().equals(user))
-                throw new MethodArgumentNotValidException("User already has an invitation to this board!.");
+        for(int i = 0; i < board.getUsers().size(); i++) {
+            if(board.getUsers().get(i).getUserId().equals(user.getUserId()))
+                throw new MethodArgumentNotValidException("User is already a board member!.");
         }
+
+        if(userHasBoardInvitation(user, board))
+            throw new MethodArgumentNotValidException("User already has an invitation to this board!.");
 
         boardInvitationService.create(user, board);
 
@@ -122,10 +131,11 @@ public class BoardService {
         confirmationTokenService.saveConfirmationToken(confirmationToken);
 
         sendInvitationEmail(collaboratorEmail, confirmationToken.getToken(), board);
+        return CompletableFuture.completedFuture(null);
     }
 
     @Async("threadPoolTaskExecutor")
-    public void acceptInvitation(ConfirmationTokenEntity confirmationToken, Long boardId) throws MethodArgumentNotValidException, ResourceNotFoundException {
+    public Future<?> acceptInvitation(ConfirmationTokenEntity confirmationToken, Long boardId) throws MethodArgumentNotValidException, ResourceNotFoundException {
         UserEntity user = confirmationToken.getUser();
         BoardEntity board = getById(boardId);
 
@@ -134,7 +144,7 @@ public class BoardService {
             throw new MethodArgumentNotValidException("Token has expired!.");
 
         for(int i = 0; i < user.getBoardInvitations().size(); i++) {
-            if(board.getBoardInvitations().get(i).getUser().equals(user)) {
+            if(board.getBoardInvitations().get(i).getUser().getUserId().equals(user.getUserId())) {
                 board.addUser(user);
                 boardRepository.save(board);
         
@@ -142,7 +152,7 @@ public class BoardService {
                 
                 boardInvitationService.remove(board.getBoardInvitations().get(i));
                 confirmationTokenService.removeConfirmationToken(confirmationToken);
-                return;
+                return CompletableFuture.completedFuture(null);
             }
         }
         throw new MethodArgumentNotValidException("User doesn't have an invitation for this board!.");
@@ -160,6 +170,14 @@ public class BoardService {
     private Boolean userHasBoard(UserEntity user, BoardEntity board) throws MethodArgumentNotValidException {
         for(int i = 0; i < user.getBoards().size(); i++) {
             if(user.getBoards().get(i).getBoardId().equals(board.getBoardId()))
+                return true;
+        }
+        return false;
+    }
+
+    private Boolean userHasBoardInvitation(UserEntity user, BoardEntity board) {
+        for(int i = 0; i < user.getBoardInvitations().size(); i++) {
+            if(user.getBoardInvitations().get(i).getUser().getUserId().equals(user.getUserId()))
                 return true;
         }
         return false;
