@@ -77,25 +77,31 @@ public class BoardController {
 
     @PutMapping("/board/{boardId}/favorite/")
     public ResponseEntity<?> favorite(@PathVariable("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
+        Future<?> board = boardService.favorite(userId, boardId);
         try {
-            boardService.favorite(userId, boardId);
+            board.get();
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch(ResourceNotFoundException ex) {
-            throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
-        } catch(MethodArgumentNotValidException ex) {
-            throw new MethodArgumentNotValidException(ex.getLocalizedMessage(), ex);
+        } catch(InterruptedException | CancellationException| ExecutionException ex) {
+            if(ex.getCause() instanceof ResourceNotFoundException) {
+                throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
+            } else if(ex.getCause() instanceof MethodArgumentNotValidException)
+                throw new MethodArgumentNotValidException(ex.getLocalizedMessage(), ex);
+            throw new Exception(ex.getLocalizedMessage(), ex);
         }
     }
 
     @PutMapping("/board/{boardId}/unfavorite/")
     public ResponseEntity<?> unfavorite(@PathVariable("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
+        Future<?> board = boardService.unfavorite(userId, boardId);
         try {
-            boardService.unfavorite(userId, boardId);
+            board.get();
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch(ResourceNotFoundException ex) {
-            throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
-        } catch(MethodArgumentNotValidException ex) {
-            throw new MethodArgumentNotValidException(ex.getLocalizedMessage(), ex);
+        } catch(InterruptedException | CancellationException| ExecutionException ex) {
+            if(ex.getCause() instanceof ResourceNotFoundException) {
+                throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
+            } else if(ex.getCause() instanceof MethodArgumentNotValidException)
+                throw new MethodArgumentNotValidException(ex.getLocalizedMessage(), ex);
+            throw new Exception(ex.getLocalizedMessage(), ex);
         }
     }
 

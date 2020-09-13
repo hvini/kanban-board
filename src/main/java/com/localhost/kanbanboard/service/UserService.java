@@ -136,8 +136,8 @@ public class UserService implements UserDetailsService {
     }
 
     public void addBoardToFavorite(UserEntity user, BoardEntity board) throws MethodArgumentNotValidException {
-        for(int i = 0; i < user.getFavoriteBoards().size(); i++) {
-            if(user.getFavoriteBoards().get(i).equals(board))
+        if(!user.getFavoriteBoards().isEmpty()) {
+            if(boardIsInUserFavorite(user, board))
                 throw new MethodArgumentNotValidException("Board is already in favorites!.");
         }
 
@@ -147,14 +147,12 @@ public class UserService implements UserDetailsService {
 
     public void removeBoardFromFavorite(UserEntity user, BoardEntity board) throws MethodArgumentNotValidException, ResourceNotFoundException {
         if(user.getFavoriteBoards().isEmpty())
-            throw new ResourceNotFoundException("There is no board in your favorite list!.");
+            throw new ResourceNotFoundException("There is no board in this user favorite list!.");
 
-        for(int i = 0; i < user.getFavoriteBoards().size(); i++) {
-            if(!user.getFavoriteBoards().get(i).equals(board))
-                throw new MethodArgumentNotValidException("Board is not in favorites!.");
-        }
+        if(!boardIsInUserFavorite(user, board))
+            throw new MethodArgumentNotValidException("Board is not in favorites!.");
 
-        user.removeFavoriteBoard(board);
+        user.removeFavoriteBoard(board.getBoardId());
         userRepository.save(user);
     }
     
@@ -184,5 +182,13 @@ public class UserService implements UserDetailsService {
 
         encodedPassword = bCryptEncoder.encode(password);
         return encodedPassword;
+    }
+
+    private Boolean boardIsInUserFavorite(UserEntity user, BoardEntity board) {
+        for(int i = 0; i < user.getBoards().size(); i++) {
+            if(user.getFavoriteBoards().get(i).getBoardId().equals(board.getBoardId()))
+                return true;
+        }
+        return false;
     }
 }

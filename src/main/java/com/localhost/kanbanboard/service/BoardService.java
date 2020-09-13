@@ -86,19 +86,21 @@ public class BoardService {
     }
 
     @Async("threadPoolTaskExecutor")
-    public void favorite(Long userId, Long boardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
+    public Future<?> favorite(Long userId, Long boardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
         UserEntity user = userService.getById(userId);
         BoardEntity board = getById(boardId);
 
         userService.addBoardToFavorite(user, board);
+        return CompletableFuture.completedFuture(null);
     }
 
     @Async("threadPoolTaskExecutor")
-    public void unfavorite(Long userId, Long boardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
+    public Future<?> unfavorite(Long userId, Long boardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
         UserEntity user = userService.getById(userId);
         BoardEntity board = getById(boardId);
 
         userService.removeBoardFromFavorite(user, board);
+        return CompletableFuture.completedFuture(null);
     }
 
     @Async("threadPoolTaskExecutor")

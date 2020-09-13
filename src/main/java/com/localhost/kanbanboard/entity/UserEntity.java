@@ -49,8 +49,9 @@ public class UserEntity {
     @Fetch(FetchMode.SUBSELECT)
     private List<BoardEntity> boards;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "favorite_boards")
+    @Fetch(FetchMode.SUBSELECT)
     private List<BoardEntity> favoriteBoards;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
@@ -76,7 +77,7 @@ public class UserEntity {
         this.favoriteBoards.add(board);
     }
 
-    public void removeFavoriteBoard(BoardEntity board) {
-        this.favoriteBoards.remove(board);
+    public void removeFavoriteBoard(Long boardId) {
+        this.favoriteBoards.removeIf(favorite -> favorite.getBoardId().equals(boardId));
     }
 }
