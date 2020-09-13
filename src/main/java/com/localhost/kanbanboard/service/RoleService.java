@@ -25,8 +25,4 @@ public class RoleService {
         
         return role;
     }
-
-    public void remove(RoleEntity role) {
-        roleRepository.delete(role);
-    }
 }

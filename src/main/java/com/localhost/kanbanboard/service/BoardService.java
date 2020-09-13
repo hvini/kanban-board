@@ -11,7 +11,9 @@ import com.localhost.kanbanboard.entity.UserEntity;
 import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
 import org.springframework.stereotype.Service;
+import java.util.concurrent.CompletableFuture;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.Future;
 import java.time.LocalDateTime;
 import java.io.IOException;
 import java.util.Optional;
@@ -45,37 +47,42 @@ public class BoardService {
     }
 
     @Async("threadPoolTaskExecutor")
-    public void create(BoardEntity boardEntity, Long userId) throws ResourceNotFoundException {
+    public Future<?> create(BoardEntity boardEntity, Long userId) throws ResourceNotFoundException {
         UserEntity user = userService.getById(userId);
 
         boardEntity.addUser(user);
         boardRepository.save(boardEntity);
 
         roleService.create("admin", user, boardEntity);
+        return CompletableFuture.completedFuture(null);
     }
 
     @Async("threadPoolTaskExecutor")
-    public void update(BoardEntity boardEntity) throws ResourceNotFoundException {
+    public Future<?> update(BoardEntity boardEntity) throws ResourceNotFoundException {
         BoardEntity board = getById(boardEntity.getBoardId());
 
         board.setName(boardEntity.getName());
         boardRepository.save(board);
+        return CompletableFuture.completedFuture(null);
     }
 
     @Async("threadPoolTaskExecutor")
-    public void delete(Long boardId, Long userId) throws ResourceNotFoundException, MethodArgumentNotValidException {
+    public Future<?> delete(Long boardId, Long userId) throws ResourceNotFoundException, MethodArgumentNotValidException {
         BoardEntity board = getById(boardId);
         UserEntity user = userService.getById(userId);
 
+        if(!userHasBoard(user, board))
+            throw new MethodArgumentNotValidException("User does not belong to this board!.");
+
         for(int i = 0; i < user.getRoles().size(); i++) {
-            if(user.getRoles().get(i).getBoard().equals(board)) {
+            if(user.getRoles().get(i).getBoard().getBoardId().equals(board.getBoardId())) {
                 if(!user.getRoles().get(i).getName().contains("admin"))
                     throw new MethodArgumentNotValidException("Only the administrator can delete the board!.");
             }
         }
 
-        removeAllConstraints(board);
         boardRepository.delete(board);
+        return CompletableFuture.completedFuture(null);
     }
 
     @Async("threadPoolTaskExecutor")
@@ -148,10 +155,11 @@ public class BoardService {
         emailSenderService.sendEmail(from, subject, to, content);
     }
 
-    private void removeAllConstraints(BoardEntity board) {
-        // removing all users role in the board.
-        for(int i = 0; i < board.getRoles().size(); i++) {
-            roleService.remove(board.getRoles().get(i));
+    private Boolean userHasBoard(UserEntity user, BoardEntity board) throws MethodArgumentNotValidException {
+        for(int i = 0; i < user.getBoards().size(); i++) {
+            if(user.getBoards().get(i).getBoardId().equals(board.getBoardId()))
+                return true;
         }
+        return false;
     }
 }

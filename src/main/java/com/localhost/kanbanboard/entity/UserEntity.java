@@ -2,10 +2,12 @@ package com.localhost.kanbanboard.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.validation.constraints.NotEmpty;
+import org.hibernate.annotations.FetchMode;
 import javax.persistence.ElementCollection;
 import javax.persistence.CollectionTable;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import org.hibernate.annotations.Fetch;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.FetchType;
@@ -44,13 +46,15 @@ public class UserEntity {
     private List<ConfirmationTokenEntity> confirmationToken;
 
     @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
     private List<BoardEntity> boards;
 
     @ElementCollection
     @CollectionTable(name = "favorite_boards")
     private List<BoardEntity> favoriteBoards;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
     private List<RoleEntity> roles;
 
     @OneToMany(mappedBy = "user")

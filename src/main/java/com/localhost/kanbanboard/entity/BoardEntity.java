@@ -8,6 +8,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
+import javax.persistence.FetchType;
 import javax.persistence.Entity;
 import lombok.EqualsAndHashCode;
 import javax.persistence.Id;
@@ -37,18 +38,18 @@ public class BoardEntity {
     @Getter(onMethod = @__(@JsonIgnore))
     private List<UserEntity> users;
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER, orphanRemoval = true)
     @Getter(onMethod = @__(@JsonIgnore))
     private List<RoleEntity> roles;
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", orphanRemoval = true)
     @Getter(onMethod = @__(@JsonIgnore))
     private List<BoardInvitationEntity> boardInvitations;
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", orphanRemoval = true)
     private List<ActivityEntity> activities;
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", orphanRemoval = true)
     private List<ListEntity> lists;
 
     public BoardEntity() {
