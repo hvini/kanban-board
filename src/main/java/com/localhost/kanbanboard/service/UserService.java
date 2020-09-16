@@ -1,9 +1,7 @@
 package com.localhost.kanbanboard.service;
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import com.localhost.kanbanboard.exception.MethodArgumentNotValidException;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.localhost.kanbanboard.exception.ResourceNotFoundException;
@@ -11,14 +9,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.localhost.kanbanboard.entity.ConfirmationTokenEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.localhost.kanbanboard.repository.UserRepository;
-import com.localhost.kanbanboard.entity.AuthRequest;
 import com.localhost.kanbanboard.entity.BoardEntity;
 import com.localhost.kanbanboard.entity.UserEntity;
 import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
 import org.springframework.stereotype.Service;
-import com.localhost.kanbanboard.util.JwtUtil;
-import javax.naming.AuthenticationException;
 import java.time.temporal.ChronoUnit;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -39,10 +34,6 @@ public class UserService implements UserDetailsService {
     private ConfirmationTokenService confirmationTokenService;
     @Autowired
     private EmailSenderService emailSenderService;
-    @Autowired
-    private JwtUtil jwtUtil;
-    @Autowired
-    private AuthenticationManager authenticationManager;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -103,13 +94,6 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
 
         confirmationTokenService.removeConfirmationToken(confirmationToken);
-    }
-
-    public String authenticate(AuthRequest authRequest) throws AuthenticationException {
-        authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword()));
-        
-        return jwtUtil.generateToken(authRequest.getEmail());
     }
 
     public void forgotPassword(String email) throws IOException, ResourceNotFoundException {
