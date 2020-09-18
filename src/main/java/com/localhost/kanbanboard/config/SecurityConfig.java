@@ -5,6 +5,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import com.localhost.kanbanboard.handler.exception.RestAuthenticationEntryPoint;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -45,19 +46,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
+            .csrf().disable()
             .authorizeRequests()
             .antMatchers("/", "/register/", "/sign-up/**").permitAll()
             .anyRequest().authenticated()
             .and()
-            .logout()
-            .logoutSuccessUrl("/")
-            .invalidateHttpSession(true)
-            .deleteCookies("JSESSIONID")
+            .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint())
             .and()
-            .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint());
+            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+    }
+
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers("/", "/register/", "/sign-up/**");
     }
 
     @Bean
