@@ -63,11 +63,16 @@ public class UserEntity {
     @Getter(onMethod = @__(@JsonIgnore))
     private List<BoardInvitationEntity> boardInvitations;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
+    private List<CommentEntity> comments;
+
     public UserEntity() {
         this.boards = new ArrayList<>();
         this.favoriteBoards = new ArrayList<>();
         this.roles = new ArrayList<>();
         this.boardInvitations = new ArrayList<>();
+        this.comments = new ArrayList<>();
     }
 
     public void addConfirmationToken(ConfirmationTokenEntity confirmationToken) {
