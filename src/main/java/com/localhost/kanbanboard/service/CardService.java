@@ -67,19 +67,60 @@ public class CardService {
         CardEntity card = getById(cardEntity.getCardId());
         UserEntity user = userService.getById(userId);
         BoardEntity board = boardService.getById(boardId);
-        ListEntity list = listService.getById(cardEntity.getList().getListId());
+        ListEntity list = listService.getById(card.getList().getListId());
 
         if(!userService.userIsInTheBoard(user, board))
             throw new MethodArgumentNotValidException("User is not in this board!.");
 
         if(!boardService.boardHasList(board, list))
-            throw new MethodArgumentNotValidException("Board does not have this list!.");
+            throw new MethodArgumentNotValidException("Board does not have this list card!.");
 
         card.setName(cardEntity.getName());
         card.setDueDate(cardEntity.getDueDate());
         card.setDescription(cardEntity.getDescription());
-        card.setPosition(cardEntity.getPosition());
-        card.setList(cardEntity.getList());
+        cardRepository.save(card);
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Async("threadPoolTaskExecutor")
+    public Future<?> closeCard(Long cardId, Long boardId, Long userId) throws ResourceNotFoundException, MethodArgumentNotValidException {
+        UserEntity user = userService.getById(userId);
+        BoardEntity board = boardService.getById(boardId);
+        CardEntity card = getById(cardId);
+        ListEntity list = listService.getById(card.getList().getListId());
+
+        if(!userService.userIsInTheBoard(user, board))
+            throw new MethodArgumentNotValidException("User is not in this board!.");
+
+        if(!boardService.boardHasList(board, list))
+            throw new MethodArgumentNotValidException("Board does not have this list card!.");
+
+        if(card.getIsFinished())
+        throw new MethodArgumentNotValidException("Card is already closed!.");
+
+        card.setIsFinished(true);
+        card.setFinishedDate(LocalDateTime.now());
+        cardRepository.save(card);
+        return CompletableFuture.completedFuture(null);
+    }
+
+    @Async("threadPoolTaskExecutor")
+    public Future<?> openCard(Long cardId, Long boardId, Long userId) throws ResourceNotFoundException, MethodArgumentNotValidException {
+        UserEntity user = userService.getById(userId);
+        BoardEntity board = boardService.getById(boardId);
+        CardEntity card = getById(cardId);
+        ListEntity list = listService.getById(card.getList().getListId());
+
+        if(!userService.userIsInTheBoard(user, board))
+            throw new MethodArgumentNotValidException("User is not in this board!.");
+
+        if(!boardService.boardHasList(board, list))
+            throw new MethodArgumentNotValidException("Board does not have this list card!.");
+
+        if(!card.getIsFinished())
+        throw new MethodArgumentNotValidException("Card is not closed!.");
+
+        card.setIsFinished(false);
         cardRepository.save(card);
         return CompletableFuture.completedFuture(null);
     }

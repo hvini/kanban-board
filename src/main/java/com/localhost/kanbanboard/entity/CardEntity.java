@@ -1,5 +1,6 @@
 package com.localhost.kanbanboard.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.validation.constraints.NotEmpty;
 import org.hibernate.annotations.FetchMode;
 import javax.persistence.GeneratedValue;
@@ -50,6 +51,7 @@ public class CardEntity {
 
     @ManyToOne
     @JoinColumn(name = "listId", nullable = false)
+    @Getter(onMethod = @__(@JsonIgnore))
     private ListEntity list;
 
     public CardEntity() {

@@ -42,6 +42,7 @@ public class ListEntity {
     @OneToMany(mappedBy = "list", fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)
     private List<CardEntity> cards;
+    
 
     public ListEntity() {
         this.cards = new ArrayList<>();

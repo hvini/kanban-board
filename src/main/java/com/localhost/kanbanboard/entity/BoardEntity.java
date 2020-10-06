@@ -54,7 +54,8 @@ public class BoardEntity {
     @OneToMany(mappedBy = "board", orphanRemoval = true)
     private List<ActivityEntity> activities;
 
-    @OneToMany(mappedBy = "board", orphanRemoval = true)
+    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER, orphanRemoval = true)
+    @Fetch(FetchMode.SUBSELECT)
     private List<ListEntity> lists;
 
     public BoardEntity() {
