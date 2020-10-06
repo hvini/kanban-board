@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.localhost.kanbanboard.repository.BoardRepository;
 import org.springframework.scheduling.annotation.Async;
 import com.localhost.kanbanboard.entity.BoardEntity;
+import com.localhost.kanbanboard.entity.ListEntity;
 import com.localhost.kanbanboard.entity.UserEntity;
 import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
@@ -156,6 +157,14 @@ public class BoardService {
             }
         }
         throw new MethodArgumentNotValidException("User doesn't have an invitation for this board!.");
+    }
+
+    public Boolean boardHasList(BoardEntity board, ListEntity list) {
+        for(int i = 0; i < board.getLists().size(); i++) {
+            if(board.getLists().get(i).getListId().equals(list.getListId()))
+                return true;
+        }
+        return false;
     }
 
     private void sendInvitationEmail(String collaboratorEmail, String token, BoardEntity board) throws IOException {

@@ -139,6 +139,14 @@ public class UserService implements UserDetailsService {
         user.removeFavoriteBoard(board.getBoardId());
         userRepository.save(user);
     }
+
+    public Boolean userIsInTheBoard(UserEntity user, BoardEntity board) {
+        for(int i = 0; i < user.getBoards().size(); i++) {
+            if(user.getBoards().get(i).getBoardId().equals(board.getBoardId()))
+                return true;
+        }
+        return false;
+    }
     
     private void sendConfirmationMail(String userMail, String token) throws IOException {
         Content content = new Content("text/html", "Thank you for registering. Please click on the below link to activate your account." + "http://localhost:8080/sign-up/confirm/?token=" + token);
