@@ -65,6 +65,7 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)
+    @Getter(onMethod = @__(@JsonIgnore))
     private List<CommentEntity> comments;
 
     public UserEntity() {

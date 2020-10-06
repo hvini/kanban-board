@@ -1,5 +1,6 @@
 package com.localhost.kanbanboard.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.validation.constraints.NotEmpty;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -27,9 +28,11 @@ public class CommentEntity {
     
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)
+    @Getter(onMethod = @__(@JsonIgnore))
     private UserEntity user;
     
     @ManyToOne
     @JoinColumn(name = "cardId", nullable = false)
+    @Getter(onMethod = @__(@JsonIgnore))
     private CardEntity card;
 }
