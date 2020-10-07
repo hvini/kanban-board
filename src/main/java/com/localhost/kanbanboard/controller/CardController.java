@@ -138,4 +138,20 @@ public class CardController {
             throw new Exception(ex.getLocalizedMessage(), ex);
         }
     }
+
+    @PutMapping("/{cardId}/move")
+    public ResponseEntity<?> moveCard(@RequestBody CardEntity cardEntity, @PathVariable("cardId") Long cardId, @RequestParam("listId") Long listId, @RequestParam("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
+        cardEntity.setCardId(cardId);
+        Future<?> card = cardService.moveCard(cardEntity, listId, boardId, userId);
+        try {
+            card.get();
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch(InterruptedException | CancellationException | ExecutionException ex) {
+            if(ex.getCause() instanceof ResourceNotFoundException) {
+                throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
+            } else if(ex.getCause() instanceof MethodArgumentNotValidException)
+                throw new MethodArgumentNotValidException(ex.getLocalizedMessage(), ex);
+            throw new Exception(ex.getLocalizedMessage(), ex);
+        }
+    }
 }

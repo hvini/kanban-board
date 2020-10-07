@@ -124,4 +124,27 @@ public class CardService {
         cardRepository.save(card);
         return CompletableFuture.completedFuture(null);
     }
+
+    @Async("threadPoolTaskExecutor")
+    public Future<?> moveCard(CardEntity cardEntity, Long listId, Long boardId, Long userId) throws ResourceNotFoundException, MethodArgumentNotValidException {
+        UserEntity user = userService.getById(userId);
+        BoardEntity board = boardService.getById(boardId);
+        CardEntity card = getById(cardEntity.getCardId());
+        ListEntity list = listService.getById(listId);
+        String text = user.getFullName() + " moveu " + card.getName() + " de " + card.getList().getName() + " para " + list.getName();
+
+        if(!userService.userIsInTheBoard(user, board))
+            throw new MethodArgumentNotValidException("User is not in this board!.");
+
+        if(!boardService.boardHasList(board, list))
+            throw new MethodArgumentNotValidException("Board does not have this list!.");
+
+        card.setPosition(cardEntity.getPosition());
+        card.setList(list);
+        cardRepository.save(card);
+
+        activityService.create(text, board);
+        
+        return CompletableFuture.completedFuture(null);
+    }
 }
