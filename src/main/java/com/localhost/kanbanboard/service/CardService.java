@@ -56,6 +56,7 @@ public class CardService {
 
         card.setList(list);
         card.setCreatedDate(LocalDateTime.now());
+        card.setIsFinished(false);
         cardRepository.save(card);
 
         activityService.create(text, list.getBoard());
@@ -96,7 +97,7 @@ public class CardService {
             throw new MethodArgumentNotValidException("Board does not have this list card!.");
 
         if(card.getIsFinished())
-        throw new MethodArgumentNotValidException("Card is already closed!.");
+            throw new MethodArgumentNotValidException("Card is already closed!.");
 
         card.setIsFinished(true);
         card.setFinishedDate(LocalDateTime.now());
@@ -118,7 +119,7 @@ public class CardService {
             throw new MethodArgumentNotValidException("Board does not have this list card!.");
 
         if(!card.getIsFinished())
-        throw new MethodArgumentNotValidException("Card is not closed!.");
+            throw new MethodArgumentNotValidException("Card is not closed!.");
 
         card.setIsFinished(false);
         cardRepository.save(card);

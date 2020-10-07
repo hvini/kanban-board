@@ -47,6 +47,7 @@ public class UserEntity {
 
     @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)
+    @Getter(onMethod = @__(@JsonIgnore))
     private List<BoardEntity> boards;
 
     @ElementCollection(fetch = FetchType.EAGER)

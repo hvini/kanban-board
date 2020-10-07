@@ -52,6 +52,7 @@ public class BoardEntity {
     private List<BoardInvitationEntity> boardInvitations;
 
     @OneToMany(mappedBy = "board", orphanRemoval = true)
+    @Getter(onMethod = @__(@JsonIgnore))
     private List<ActivityEntity> activities;
 
     @OneToMany(mappedBy = "board", fetch = FetchType.EAGER, orphanRemoval = true)
