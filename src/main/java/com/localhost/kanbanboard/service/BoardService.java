@@ -6,6 +6,7 @@ import com.localhost.kanbanboard.entity.ConfirmationTokenEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.localhost.kanbanboard.repository.BoardRepository;
 import org.springframework.scheduling.annotation.Async;
+import com.localhost.kanbanboard.entity.ActivityEntity;
 import com.localhost.kanbanboard.entity.BoardEntity;
 import com.localhost.kanbanboard.entity.ListEntity;
 import com.localhost.kanbanboard.entity.UserEntity;
@@ -55,6 +56,15 @@ public class BoardService {
             throw new ResourceNotFoundException("Board has no registered lists!.");
 
         return board.getLists();
+    }
+
+    public List<ActivityEntity> getAllActivities(Long boardId) throws ResourceNotFoundException {
+        BoardEntity board = getById(boardId);
+
+        if(board.getActivities().isEmpty())
+            throw new ResourceNotFoundException("Board has no activities!.");
+
+        return board.getActivities();
     }
 
     @Async("threadPoolTaskExecutor")

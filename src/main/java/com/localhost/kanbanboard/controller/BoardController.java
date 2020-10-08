@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import com.localhost.kanbanboard.entity.ActivityEntity;
 import com.localhost.kanbanboard.service.BoardService;
 import com.localhost.kanbanboard.entity.BoardEntity;
 import com.localhost.kanbanboard.entity.ListEntity;
@@ -41,6 +42,16 @@ public class BoardController {
         try {
             List<ListEntity> lists = boardService.getAllLists(boardId);
             return new ResponseEntity<>(lists, HttpStatus.OK);
+        } catch(ResourceNotFoundException ex) {
+            throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
+        }
+    }
+
+    @GetMapping("/{boardId}/activities")
+    public ResponseEntity<?> getAllActivities(@PathVariable("boardId") Long boardId) throws Exception {
+        try {
+            List<ActivityEntity> activities = boardService.getAllActivities(boardId);
+            return new ResponseEntity<>(activities, HttpStatus.OK);
         } catch(ResourceNotFoundException ex) {
             throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
         }
