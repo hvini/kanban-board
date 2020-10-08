@@ -125,6 +125,9 @@ public class UserService implements UserDetailsService {
                 throw new MethodArgumentNotValidException("Board is already in favorites!.");
         }
 
+        if(!userIsInTheBoard(user, board))
+            throw new MethodArgumentNotValidException("User is not in this board!.");
+
         user.addFavoriteBoard(board);
         userRepository.save(user);
     }
@@ -135,6 +138,9 @@ public class UserService implements UserDetailsService {
 
         if(!boardIsInUserFavorite(user, board))
             throw new MethodArgumentNotValidException("Board is not in favorites!.");
+
+        if(!userIsInTheBoard(user, board))
+            throw new MethodArgumentNotValidException("User is not in this board!.");
 
         user.removeFavoriteBoard(board.getBoardId());
         userRepository.save(user);
