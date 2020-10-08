@@ -6,11 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.localhost.kanbanboard.repository.ListRepository;
 import org.springframework.scheduling.annotation.Async;
 import com.localhost.kanbanboard.entity.BoardEntity;
+import com.localhost.kanbanboard.entity.CardEntity;
 import com.localhost.kanbanboard.entity.ListEntity;
 import com.localhost.kanbanboard.entity.UserEntity;
 import org.springframework.stereotype.Service;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -34,6 +36,15 @@ public class ListService {
             throw new ResourceNotFoundException("Invalid list identification!.");
 
         return list.get();
+    }
+
+    public List<CardEntity> getAllCards(Long listId) throws ResourceNotFoundException {
+        ListEntity list = getById(listId);
+
+        if(list.getCards().isEmpty())
+            throw new ResourceNotFoundException("List has no registered cards!.");
+
+        return list.getCards();
     }
 
     @Async("threadPoolTaskExecutor")
