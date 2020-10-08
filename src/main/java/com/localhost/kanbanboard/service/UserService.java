@@ -54,6 +54,15 @@ public class UserService implements UserDetailsService {
         return user.get();
     }
 
+    public List<BoardEntity> getAllBoards(Long userId) throws ResourceNotFoundException {
+        UserEntity user = getById(userId);
+
+        if(user.getBoards().isEmpty())
+            throw new ResourceNotFoundException("User has no registered boards!.");
+
+        return user.getBoards();
+    }
+
     public UserEntity getByEmail(String email) throws ResourceNotFoundException {
         UserEntity user = userRepository.findByEmail(email);
 

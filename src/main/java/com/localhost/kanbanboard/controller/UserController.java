@@ -7,10 +7,12 @@ import com.localhost.kanbanboard.entity.ConfirmationTokenEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import com.localhost.kanbanboard.service.UserService;
+import com.localhost.kanbanboard.entity.BoardEntity;
 import com.localhost.kanbanboard.entity.UserEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.http.ResponseEntity;
@@ -22,20 +24,30 @@ import java.util.List;
  * UserController
  */
 @Controller
-@RequestMapping("/")
+@RequestMapping("/u")
 public class UserController {
     @Autowired
     private UserService userService;
     @Autowired
     private ConfirmationTokenService confirmationTokenService;
 
-    @GetMapping("/users/")
+    @GetMapping("")
     public ResponseEntity<?> getAll() {
         List<UserEntity> user = userService.getAll();
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @PostMapping("/register/")
+    @GetMapping("/{userId}/boards")
+    public ResponseEntity<?> getAllBoards(@PathVariable("userId") Long userId) throws Exception {
+        try {
+            List<BoardEntity> boards = userService.getAllBoards(userId);
+            return new ResponseEntity<>(boards, HttpStatus.OK);
+        } catch(ResourceNotFoundException ex) {
+            throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
+        }
+    }
+
+    @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserEntity userEntity) throws Exception {
         try {
             userService.register(userEntity);
@@ -47,7 +59,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/sign-up/confirm/")
+    @GetMapping("/sign-up/confirm")
     public ResponseEntity<?> confirmRegistration(@RequestParam("token") String token) throws Exception {
         try {
             ConfirmationTokenEntity confirmationToken = confirmationTokenService.getByToken(token);
@@ -61,7 +73,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/sign-up/forgot/")
+    @PostMapping("/sign-up/forgot")
     public ResponseEntity<?> forgotPassword(@RequestParam("email") String email) throws Exception {
         try {
             userService.forgotPassword(email);
@@ -73,7 +85,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/sign-up/reset-password/")
+    @PostMapping("/sign-up/reset-password")
     public ResponseEntity<?> resetPassword(@RequestParam("token") String token, @RequestParam("password") String password) throws Exception {
         try {
             ConfirmationTokenEntity confirmationToken = confirmationTokenService.getByToken(token);

@@ -48,7 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
             .csrf().disable()
             .authorizeRequests()
-            .antMatchers("/", "/register/", "/sign-up/**").permitAll()
+            .antMatchers("/u", "/u/register", "/u/sign-up/**").permitAll()
             .anyRequest().authenticated()
             .and()
             .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint())
@@ -58,7 +58,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/", "/register/", "/sign-up/**");
+        web.ignoring().antMatchers("/u", "/u/register", "/u/sign-up/**");
     }
 
     @Bean
