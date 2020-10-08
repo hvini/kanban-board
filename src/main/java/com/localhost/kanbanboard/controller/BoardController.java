@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import com.localhost.kanbanboard.service.BoardService;
 import com.localhost.kanbanboard.entity.BoardEntity;
+import com.localhost.kanbanboard.entity.ListEntity;
 import java.util.concurrent.CancellationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.http.ResponseEntity;
@@ -21,19 +23,30 @@ import java.util.concurrent.ExecutionException;
 import org.springframework.http.HttpStatus;
 import java.util.concurrent.Future;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * BoardController
  */
 @Controller
-@RequestMapping("/")
+@RequestMapping("/b")
 public class BoardController {
     @Autowired
     private BoardService boardService;
     @Autowired
     private ConfirmationTokenService confirmationTokenService;
 
-    @PostMapping("/board/create/")
+    @GetMapping("/{boardId}/lists")
+    public ResponseEntity<?> getAllLists(@PathVariable("boardId") Long boardId) throws Exception {
+        try {
+            List<ListEntity> lists = boardService.getAllLists(boardId);
+            return new ResponseEntity<>(lists, HttpStatus.OK);
+        } catch(ResourceNotFoundException ex) {
+            throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
+        }
+    }
+
+    @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody BoardEntity boardEntity, @RequestParam("userId") Long userId) throws Exception {
         Future<?> board = boardService.create(boardEntity, userId);
         try {
@@ -46,7 +59,7 @@ public class BoardController {
         }
     }
 
-    @PutMapping("/board/{boardId}/update/")
+    @PutMapping("/{boardId}/update")
     public ResponseEntity<?> update(@RequestBody BoardEntity boardEntity, @PathVariable("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
         boardEntity.setBoardId(boardId);
         Future<?> board = boardService.update(boardEntity, userId);
@@ -62,7 +75,7 @@ public class BoardController {
         }
     }
 
-    @DeleteMapping("/board/{boardId}/delete/")
+    @DeleteMapping("/{boardId}/delete")
     public ResponseEntity<?> delete(@PathVariable("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
         Future<?> board = boardService.delete(boardId, userId);
         try {
@@ -77,7 +90,7 @@ public class BoardController {
         }
     }
 
-    @PutMapping("/board/{boardId}/favorite/")
+    @PutMapping("/{boardId}/favorite")
     public ResponseEntity<?> favorite(@PathVariable("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
         Future<?> board = boardService.favorite(userId, boardId);
         try {
@@ -92,7 +105,7 @@ public class BoardController {
         }
     }
 
-    @PutMapping("/board/{boardId}/unfavorite/")
+    @PutMapping("/{boardId}/unfavorite")
     public ResponseEntity<?> unfavorite(@PathVariable("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
         Future<?> board = boardService.unfavorite(userId, boardId);
         try {
@@ -107,8 +120,8 @@ public class BoardController {
         }
     }
 
-    @PostMapping("/board/send-invitation/")
-    public ResponseEntity<?> sendInvitation(@RequestParam("collaboratorEmail") String collaboratorEmail, @RequestParam("boardId") Long boardId) throws Exception {
+    @PostMapping("/send-invitation/{collaboratorEmail}")
+    public ResponseEntity<?> sendInvitation(@PathVariable("collaboratorEmail") String collaboratorEmail, @RequestParam("boardId") Long boardId) throws Exception {
         Future<?> board = boardService.inviteUserToBoard(collaboratorEmail, boardId);
         try {
             board.get();
@@ -124,7 +137,7 @@ public class BoardController {
         }
     }
 
-    @PostMapping("/board/invitation/{token}/")
+    @PostMapping("/invitation/{token}")
     public ResponseEntity<?> acceptInvitation(@PathVariable("token") String token, @RequestParam("boardId") Long boardId) throws Exception {
         try {
             ConfirmationTokenEntity confirmationToken = confirmationTokenService.getByToken(token);   

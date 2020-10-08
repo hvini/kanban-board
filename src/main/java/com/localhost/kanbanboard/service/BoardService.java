@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.io.IOException;
 import java.util.Optional;
 import java.time.ZoneId;
+import java.util.List;
 
 /**
  * BoardService
@@ -45,6 +46,15 @@ public class BoardService {
             throw new ResourceNotFoundException("Invalid board identification!.");
 
         return board.get();
+    }
+
+    public List<ListEntity> getAllLists(Long boardId) throws ResourceNotFoundException {
+        BoardEntity board = getById(boardId);
+
+        if(board.getLists().isEmpty())
+            throw new ResourceNotFoundException("Board has no registered lists!.");
+
+        return board.getLists();
     }
 
     @Async("threadPoolTaskExecutor")
