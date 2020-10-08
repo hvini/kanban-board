@@ -42,7 +42,7 @@ public class ListService {
         UserEntity user   = userService.getById(userId);
         String text       = user.getFullName() + " adicionou " + list.getName() + " a este quadro";
 
-        if(!userIsInTheBoard(user, board))
+        if(!userService.userIsInTheBoard(user, board))
             throw new MethodArgumentNotValidException("User does not belong to this board!.");
 
         list.setBoard(board);
@@ -53,20 +53,20 @@ public class ListService {
     }
 
     @Async("threadPoolTaskExecutor")
-    public Future<?> update(ListEntity listEntity) throws ResourceNotFoundException {
+    public Future<?> update(ListEntity listEntity, Long boardId, Long userId) throws ResourceNotFoundException, MethodArgumentNotValidException {
         ListEntity list = getById(listEntity.getListId());
+        BoardEntity board = boardService.getById(boardId);
+        UserEntity user = userService.getById(userId);
+
+        if(!userService.userIsInTheBoard(user, board))
+            throw new MethodArgumentNotValidException("User does not belong to this board!.");
+
+        if(!boardService.boardHasList(board, list))
+            throw new MethodArgumentNotValidException("Board does not have this list!.");
 
         list.setName(listEntity.getName());
         list.setPosition(listEntity.getPosition());
         listRepository.save(list);
         return CompletableFuture.completedFuture(null);
-    }
-
-    private Boolean userIsInTheBoard(UserEntity user, BoardEntity board) {
-        for(int i = 0; i < user.getBoards().size(); i++) {
-            if(user.getBoards().get(i).getBoardId().equals(board.getBoardId()))
-                return true;
-        }
-        return false;
     }
 }

@@ -43,9 +43,9 @@ public class ListController {
     }
 
     @PutMapping("/l/{listId}/update/")
-    public ResponseEntity<?> update(@RequestBody ListEntity listEntity, @PathVariable("listId") Long listId) throws Exception {
+    public ResponseEntity<?> update(@RequestBody ListEntity listEntity, @PathVariable("listId") Long listId, @RequestParam("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
         listEntity.setListId(listId);
-        Future<?> list = listService.update(listEntity);
+        Future<?> list = listService.update(listEntity, boardId, userId);
         try {
             list.get();
             return new ResponseEntity<>(HttpStatus.OK);
