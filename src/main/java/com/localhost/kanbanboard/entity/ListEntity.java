@@ -39,7 +39,7 @@ public class ListEntity {
     @Getter(onMethod = @__(@JsonIgnore))
     private BoardEntity board;
 
-    @OneToMany(mappedBy = "list", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "list", fetch = FetchType.EAGER, orphanRemoval = true)
     @Fetch(FetchMode.SUBSELECT)
     private List<CardEntity> cards;
     

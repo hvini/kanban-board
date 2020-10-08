@@ -45,7 +45,7 @@ public class CardEntity {
     
     private LocalDateTime finishedDate;
     
-    @OneToMany(mappedBy = "card", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "card", fetch = FetchType.EAGER, orphanRemoval = true)
     @Fetch(FetchMode.SUBSELECT)
     private List<CommentEntity> comments;
 
