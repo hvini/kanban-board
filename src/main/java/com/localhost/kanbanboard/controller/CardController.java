@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import com.localhost.kanbanboard.service.CommentService;
 import com.localhost.kanbanboard.entity.CommentEntity;
@@ -20,6 +21,7 @@ import java.util.concurrent.ExecutionException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import java.util.concurrent.Future;
+import java.util.List;
 
 /**
  * CardController
@@ -31,6 +33,16 @@ public class CardController {
     private CardService cardService;
     @Autowired
     private CommentService commentService;
+
+    @GetMapping("/{cardId}/comments")
+    public ResponseEntity<?> getAllComments(@PathVariable("cardId") Long cardId) throws Exception {
+        try {
+            List<CommentEntity> comments = cardService.getAllComments(cardId);
+            return new ResponseEntity<>(comments, HttpStatus.OK);
+        } catch(ResourceNotFoundException ex) {
+            throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
+        }
+    }
 
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody CardEntity cardEntity, @RequestParam("listId") Long listId, @RequestParam("userId") Long userId, @RequestParam("boardId") Long boardId) throws Exception {

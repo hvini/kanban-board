@@ -7,6 +7,7 @@ import com.localhost.kanbanboard.repository.CardRepository;
 import org.springframework.scheduling.annotation.Async;
 import com.localhost.kanbanboard.entity.BoardEntity;
 import com.localhost.kanbanboard.entity.CardEntity;
+import com.localhost.kanbanboard.entity.CommentEntity;
 import com.localhost.kanbanboard.entity.ListEntity;
 import com.localhost.kanbanboard.entity.UserEntity;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.List;
 
 /**
  * CardService
@@ -39,6 +41,15 @@ public class CardService {
             throw new ResourceNotFoundException("Invalid card identification!.");
 
         return card.get();
+    }
+
+    public List<CommentEntity> getAllComments(Long cardId) throws ResourceNotFoundException {
+        CardEntity card = getById(cardId);
+
+        if(card.getComments().isEmpty())
+            throw new ResourceNotFoundException("Card has no comments!.");
+
+        return card.getComments();
     }
 
     @Async("threadPoolTaskExecutor")
