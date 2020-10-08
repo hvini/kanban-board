@@ -59,8 +59,12 @@ public class BoardService {
     }
 
     @Async("threadPoolTaskExecutor")
-    public Future<?> update(BoardEntity boardEntity) throws ResourceNotFoundException {
+    public Future<?> update(BoardEntity boardEntity, Long userId) throws ResourceNotFoundException, MethodArgumentNotValidException {
         BoardEntity board = getById(boardEntity.getBoardId());
+        UserEntity user = userService.getById(userId);
+
+        if(!userService.userIsInTheBoard(user, board))
+            throw new MethodArgumentNotValidException("User is not in this board!.");
 
         board.setName(boardEntity.getName());
         boardRepository.save(board);

@@ -47,15 +47,17 @@ public class BoardController {
     }
 
     @PutMapping("/board/{boardId}/update/")
-    public ResponseEntity<?> update(@RequestBody BoardEntity boardEntity, @PathVariable("boardId") Long boardId) throws Exception {
+    public ResponseEntity<?> update(@RequestBody BoardEntity boardEntity, @PathVariable("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
         boardEntity.setBoardId(boardId);
-        Future<?> board = boardService.update(boardEntity);
+        Future<?> board = boardService.update(boardEntity, userId);
         try {
             board.get();
             return new ResponseEntity<>(HttpStatus.OK);
         } catch(InterruptedException | CancellationException| ExecutionException ex) {
-            if(ex.getCause() instanceof ResourceNotFoundException)
+            if(ex.getCause() instanceof ResourceNotFoundException) {
                 throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
+            } else if(ex.getCause() instanceof MethodArgumentNotValidException)
+                throw new MethodArgumentNotValidException(ex.getLocalizedMessage(), ex);
             throw new Exception(ex.getLocalizedMessage(), ex);
         }
     }
