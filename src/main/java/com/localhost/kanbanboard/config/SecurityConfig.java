@@ -10,9 +10,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -46,9 +49,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+            .cors()
+            .and()
             .csrf().disable()
             .authorizeRequests()
-            .antMatchers("/u", "/u/register", "/u/sign-up/**").permitAll()
+            .antMatchers("/u/register", "/u/sign-up/**").permitAll()
             .anyRequest().authenticated()
             .and()
             .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint())
@@ -56,9 +61,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
+
+        return source;
+    }
+
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/u", "/u/register", "/u/sign-up/**");
+        web.ignoring().antMatchers(
+            "/u/register",
+            "/u/sign-up/**",
+            "/swagger-ui.html/**",
+            "/configuration/**",
+            "/swagger-resources/**",
+            "/v2/api-docs",
+            "/webjars/**");
     }
 
     @Bean
