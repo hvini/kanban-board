@@ -20,6 +20,9 @@ import org.springframework.stereotype.Controller;
 import java.util.concurrent.ExecutionException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ApiResponse;
 import java.util.concurrent.Future;
 import java.util.List;
 
@@ -34,6 +37,13 @@ public class CardController {
     @Autowired
     private CommentService commentService;
 
+    @ApiOperation(value = "Find all comments in a card", notes = "Returns all comments from the informed card")
+    @ApiResponses(value  = {
+        @ApiResponse(code = 200, message = "Ok"),
+        @ApiResponse(code = 401, message = "Not authenticated"),
+        @ApiResponse(code = 404, message = "Not found"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     @GetMapping("/{cardId}/comments")
     public ResponseEntity<?> getAllComments(@PathVariable("cardId") Long cardId) throws Exception {
         try {
@@ -44,6 +54,14 @@ public class CardController {
         }
     }
 
+    @ApiOperation(value = "Create a card", notes = "Creates a new card in the provided list")
+    @ApiResponses(value = {
+        @ApiResponse(code = 201, message = "Card created successfully"),
+        @ApiResponse(code = 400, message = "Bad request"),
+        @ApiResponse(code = 401, message = "Not authenticated"),
+        @ApiResponse(code = 404, message = "Not found"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody CardEntity cardEntity, @RequestParam("listId") Long listId, @RequestParam("userId") Long userId, @RequestParam("boardId") Long boardId) throws Exception {
         Future<?> card = cardService.create(cardEntity, listId, userId, boardId);
@@ -59,6 +77,14 @@ public class CardController {
         }
     }
 
+    @ApiOperation(value = "Update a card", notes = "Updates the given id card")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Card successfully updated"),
+        @ApiResponse(code = 400, message = "Bad request"),
+        @ApiResponse(code = 401, message = "Not authenticated"),
+        @ApiResponse(code = 404, message = "Not found"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     @PutMapping("/{cardId}/update")
     public ResponseEntity<?> update(@RequestBody CardEntity cardEntity, @PathVariable("cardId") Long cardId, @RequestParam("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
         cardEntity.setCardId(cardId);
@@ -75,6 +101,15 @@ public class CardController {
         }
     }
 
+
+    @ApiOperation(value = "Close a card", notes = "Sets the given id card as closed")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Card successfully closed"),
+        @ApiResponse(code = 400, message = "Bad request"),
+        @ApiResponse(code = 401, message = "Not authenticated"),
+        @ApiResponse(code = 404, message = "Not found"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     @PutMapping("/{cardId}/close")
     public ResponseEntity<?> close(@PathVariable("cardId") Long cardId, @RequestParam("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
         Future<?> card = cardService.closeCard(cardId, boardId, userId);
@@ -90,6 +125,14 @@ public class CardController {
         }
     }
 
+    @ApiOperation(value = "Open a card", notes = "Sets the given id card as opened")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Card successfully opened"),
+        @ApiResponse(code = 400, message = "Bad request"),
+        @ApiResponse(code = 401, message = "Not authenticated"),
+        @ApiResponse(code = 404, message = "Not found"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     @PutMapping("/{cardId}/open")
     public ResponseEntity<?> open(@PathVariable("cardId") Long cardId, @RequestParam("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
         Future<?> card = cardService.openCard(cardId, boardId, userId);
@@ -105,6 +148,14 @@ public class CardController {
         }
     }
 
+    @ApiOperation(value = "Comment in a card", notes = "Add a comment in the given id card")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Ok"),
+        @ApiResponse(code = 400, message = "Bad request"),
+        @ApiResponse(code = 401, message = "Not authenticated"),
+        @ApiResponse(code = 404, message = "Not found"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     @PostMapping("/{cardId}/comment")
     public ResponseEntity<?> addComment(@RequestBody CommentEntity commentEntity, @PathVariable("cardId") Long cardId, @RequestParam("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
         Future<?> comment = commentService.create(commentEntity, userId, boardId, cardId);
@@ -120,6 +171,14 @@ public class CardController {
         }
     }
 
+    @ApiOperation(value = "Update a comment", notes = "Updates the given id card comment")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Comment successfully updated"),
+        @ApiResponse(code = 400, message = "Bad request"),
+        @ApiResponse(code = 401, message = "Not authenticated"),
+        @ApiResponse(code = 404, message = "Not found"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     @PutMapping("/{cardId}/comment/update")
     public ResponseEntity<?> updateComment(@RequestBody CommentEntity commentEntity, @PathVariable("cardId") Long cardId, @RequestParam("boardId") Long boardId, @RequestParam("userId") Long userId, @RequestParam("commentId") Long commentId) throws Exception {
         commentEntity.setCommentId(commentId);
@@ -136,6 +195,14 @@ public class CardController {
         }
     }
 
+    @ApiOperation(value = "Delete a comment", notes = "Deletes the given id card comment")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Comment successfully deleted"),
+        @ApiResponse(code = 400, message = "Bad request"),
+        @ApiResponse(code = 401, message = "Not authenticated"),
+        @ApiResponse(code = 404, message = "Not found"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     @DeleteMapping("/{cardId}/comment/delete")
     public ResponseEntity<?> removeComment(@PathVariable("cardId") Long cardId, @RequestParam("boardId") Long boardId, @RequestParam("userId") Long userId, @RequestParam("commentId") Long commentId) throws Exception {
         Future<?> comment = commentService.remove(commentId, userId, boardId, cardId);
@@ -151,6 +218,14 @@ public class CardController {
         }
     }
 
+    @ApiOperation(value = "Move a card", notes = "Move cards between lists")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Card successfully moved"),
+        @ApiResponse(code = 400, message = "Bad request"),
+        @ApiResponse(code = 401, message = "Not authenticated"),
+        @ApiResponse(code = 404, message = "Not found"),
+        @ApiResponse(code = 500, message = "Internal server error")
+    })
     @PutMapping("/{cardId}/move")
     public ResponseEntity<?> moveCard(@RequestBody CardEntity cardEntity, @PathVariable("cardId") Long cardId, @RequestParam("listId") Long listId, @RequestParam("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
         cardEntity.setCardId(cardId);
