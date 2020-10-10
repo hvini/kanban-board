@@ -150,7 +150,7 @@ public class CardController {
 
     @ApiOperation(value = "Comment in a card", notes = "Add a comment in the given id card")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Ok"),
+        @ApiResponse(code = 200, message = "Comment successfully added to the card"),
         @ApiResponse(code = 400, message = "Bad request"),
         @ApiResponse(code = 401, message = "Not authenticated"),
         @ApiResponse(code = 404, message = "Not found"),

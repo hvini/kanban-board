@@ -36,7 +36,7 @@ public class UserController {
 
     @ApiOperation(value = "Find all users", notes = "Returns all users in the system")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Ok"),
+        @ApiResponse(code = 200, message = "Users successfully found"),
         @ApiResponse(code = 401, message = "Not authenticated")
     })
     @GetMapping("")
@@ -47,7 +47,7 @@ public class UserController {
 
     @ApiOperation(value = "Find all boards of a user", notes = "Returns all boards of the informed user")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Ok"),
+        @ApiResponse(code = 200, message = "Boards successfully found"),
         @ApiResponse(code = 401, message = "Not authenticated"),
         @ApiResponse(code = 404, message = "Not Found"),
         @ApiResponse(code = 500, message = "Internal server error"),
@@ -64,7 +64,7 @@ public class UserController {
 
     @ApiOperation(value = "Register a user", notes = "Register a new user in the system")
     @ApiResponses(value = {
-        @ApiResponse(code = 201, message = "User created successfully", response = void.class),
+        @ApiResponse(code = 201, message = "User registered successfully", response = void.class),
         @ApiResponse(code = 400, message = "Bad request"),
         @ApiResponse(code = 401, message = "Not authenticated"),
         @ApiResponse(code = 500, message = "Internal server error"),

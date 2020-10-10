@@ -35,7 +35,7 @@ public class ListController {
 
     @ApiOperation(value = "Find all cards in a list", notes = "Returns all cards from the informed list")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Ok"),
+        @ApiResponse(code = 200, message = "Cards successfully found"),
         @ApiResponse(code = 401, message = "Not authenticated"),
         @ApiResponse(code = 404, message = "Not found"),
         @ApiResponse(code = 500, message = "Internal server error")
@@ -53,7 +53,7 @@ public class ListController {
     @ApiOperation(value = "Create a list", notes = "Creates a new list in the provided board")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Ok"),
-        @ApiResponse(code = 201, message = "List created successfully"),
+        @ApiResponse(code = 201, message = "List successfully created"),
         @ApiResponse(code = 400, message = "Bad request"),
         @ApiResponse(code = 401, message = "Not authenticated"),
         @ApiResponse(code = 404, message = "Not found"),
@@ -77,7 +77,7 @@ public class ListController {
 
     @ApiOperation(value = "Update a list", notes = "Updates the given id list")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "List updated successfully"),
+        @ApiResponse(code = 200, message = "List successfully updated"),
         @ApiResponse(code = 400, message = "Bad request"),
         @ApiResponse(code = 401, message = "Not authenticate"),
         @ApiResponse(code = 404, message = "Not found"),
