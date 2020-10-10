@@ -45,7 +45,8 @@ public class SwaggerConfig {
             .build()
             .securitySchemes(Lists.newArrayList(securityScheme()))
             .securityContexts(Lists.newArrayList(securityContext()))
-            .apiInfo(apiInfo());
+            .apiInfo(apiInfo())
+            .useDefaultResponseMessages(false);
     }
 
     @Bean

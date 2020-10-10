@@ -45,7 +45,7 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Find all user boards", notes = "Returns all boards of the informed user")
+    @ApiOperation(value = "Find all boards of a user", notes = "Returns all boards of the informed user")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Ok"),
         @ApiResponse(code = 401, message = "Not authenticated"),

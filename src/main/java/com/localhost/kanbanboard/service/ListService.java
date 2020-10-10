@@ -12,8 +12,8 @@ import com.localhost.kanbanboard.entity.UserEntity;
 import org.springframework.stereotype.Service;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
-import java.util.List;
 import java.util.Optional;
+import java.util.List;
 
 /**
  * ListService
