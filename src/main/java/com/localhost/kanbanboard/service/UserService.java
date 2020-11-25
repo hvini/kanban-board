@@ -54,8 +54,8 @@ public class UserService implements UserDetailsService {
         return user.get();
     }
 
-    public List<BoardEntity> getAllBoards(Long userId) throws ResourceNotFoundException {
-        UserEntity user = getById(userId);
+    public List<BoardEntity> getAllBoards(String userEmail) throws ResourceNotFoundException {
+        UserEntity user = getByEmail(userEmail);
 
         if(user.getBoards().isEmpty())
             throw new ResourceNotFoundException("User has no registered boards!.");
@@ -164,7 +164,7 @@ public class UserService implements UserDetailsService {
     }
     
     private void sendConfirmationMail(String userMail, String token) throws IOException {
-        Content content = new Content("text/html", "Thank you for registering. Please click on the below link to activate your account." + "http://localhost:8080/sign-up/confirm/?token=" + token);
+        Content content = new Content("text/html", "Thank you for registering. Please click on the below link to activate your account." + "http://localhost:4200/login/confirm?token=" + token);
         String subject  = "Mail Confirmation Link!.";
         Email from      = new Email("vhpcavalcanti@outlook.com");
         Email to        = new Email(userMail);
@@ -173,7 +173,7 @@ public class UserService implements UserDetailsService {
     }
 
     private void sendPasswordResetEmail(String userMail, String token) throws IOException {
-        Content content = new Content("text/html", "You recently requested to reset your password. Please click on the below link to reset it." + "http://localhost:8080/sign-up/reset-password/?token=" + token);
+        Content content = new Content("text/html", "You recently requested to reset your password. Please click on the below link to reset it." + "http://localhost:4200/login/forgot?token=" + token);
         String subject  = "Password Reset Link!";
         Email from      = new Email("vhpcavalcanti@outlook.com");
         Email to        = new Email(userMail);

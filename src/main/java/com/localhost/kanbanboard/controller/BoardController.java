@@ -40,6 +40,16 @@ public class BoardController {
     @Autowired
     private ConfirmationTokenService confirmationTokenService;
 
+    @GetMapping("/{boardId}")
+    public ResponseEntity<?> getById(@PathVariable("boardId") Long boardId, @RequestParam("userEmail") String userEmail) throws Exception {
+        try {
+            BoardEntity board = boardService.getUserBoardById(boardId, userEmail);
+            return new ResponseEntity<>(board, HttpStatus.OK);
+        } catch(ResourceNotFoundException ex) {
+            throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
+        }
+    }
+
     @ApiOperation(value = "Find all lists in a board", notes = "Returns all lists from the informed board")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Lists successfully found"),
@@ -82,11 +92,10 @@ public class BoardController {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody BoardEntity boardEntity, @RequestParam("userId") Long userId) throws Exception {
-        Future<?> board = boardService.create(boardEntity, userId);
+    public ResponseEntity<?> create(@RequestBody BoardEntity boardEntity, @RequestParam("userEmail") String userEmail) throws Exception {
+        Future<?> board = boardService.create(boardEntity, userEmail);
         try {
-            board.get();
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            return new ResponseEntity<>(board.get(), HttpStatus.CREATED);
         } catch(InterruptedException | CancellationException| ExecutionException ex) {
             if(ex.getCause() instanceof ResourceNotFoundException)
                 throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
@@ -103,12 +112,11 @@ public class BoardController {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     @PutMapping("/{boardId}/update")
-    public ResponseEntity<?> update(@RequestBody BoardEntity boardEntity, @PathVariable("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
+    public ResponseEntity<?> update(@RequestBody BoardEntity boardEntity, @PathVariable("boardId") Long boardId, @RequestParam("userEmail") String userEmail) throws Exception {
         boardEntity.setBoardId(boardId);
-        Future<?> board = boardService.update(boardEntity, userId);
+        Future<?> board = boardService.update(boardEntity, userEmail);
         try {
-            board.get();
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(board.get(), HttpStatus.OK);
         } catch(InterruptedException | CancellationException| ExecutionException ex) {
             if(ex.getCause() instanceof ResourceNotFoundException) {
                 throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
@@ -127,54 +135,8 @@ public class BoardController {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     @DeleteMapping("/{boardId}/delete")
-    public ResponseEntity<?> delete(@PathVariable("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
-        Future<?> board = boardService.delete(boardId, userId);
-        try {
-            board.get();
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch(InterruptedException | CancellationException| ExecutionException ex) {
-            if(ex.getCause() instanceof ResourceNotFoundException) {
-                throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
-            } else if(ex.getCause() instanceof MethodArgumentNotValidException)
-                throw new MethodArgumentNotValidException(ex.getLocalizedMessage(), ex);
-            throw new Exception(ex.getLocalizedMessage(), ex);
-        }
-    }
-
-    @ApiOperation(value = "Favorite a board", notes = "Sets the given id board as favorite")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Board successfully set as favorite"),
-        @ApiResponse(code = 400, message = "Bad request"),
-        @ApiResponse(code = 401, message = "Not authenticated"),
-        @ApiResponse(code = 404, message = "Not found"),
-        @ApiResponse(code = 500, message = "Internal server error")
-    })
-    @PutMapping("/{boardId}/favorite")
-    public ResponseEntity<?> favorite(@PathVariable("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
-        Future<?> board = boardService.favorite(userId, boardId);
-        try {
-            board.get();
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch(InterruptedException | CancellationException| ExecutionException ex) {
-            if(ex.getCause() instanceof ResourceNotFoundException) {
-                throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
-            } else if(ex.getCause() instanceof MethodArgumentNotValidException)
-                throw new MethodArgumentNotValidException(ex.getLocalizedMessage(), ex);
-            throw new Exception(ex.getLocalizedMessage(), ex);
-        }
-    }
-
-    @ApiOperation(value = "Unfavorite a board", notes = "Removes the given id board from favorites")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Board successfully removed from favorites"),
-        @ApiResponse(code = 400, message = "Bad request"),
-        @ApiResponse(code = 401, message = "Not authenticated"),
-        @ApiResponse(code = 404, message = "Not found"),
-        @ApiResponse(code = 500, message = "Internal server error")
-    })
-    @PutMapping("/{boardId}/unfavorite")
-    public ResponseEntity<?> unfavorite(@PathVariable("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
-        Future<?> board = boardService.unfavorite(userId, boardId);
+    public ResponseEntity<?> delete(@PathVariable("boardId") Long boardId, @RequestParam("userEmail") String userEmail) throws Exception {
+        Future<?> board = boardService.delete(boardId, userEmail);
         try {
             board.get();
             return new ResponseEntity<>(HttpStatus.OK);
@@ -195,7 +157,7 @@ public class BoardController {
         @ApiResponse(code = 404, message = "Not found"),
         @ApiResponse(code = 500, message = "Internal server error")
     })
-    @PostMapping("/send-invitation/{collaboratorEmail}")
+    @GetMapping("/send-invitation/{collaboratorEmail}")
     public ResponseEntity<?> sendInvitation(@PathVariable("collaboratorEmail") String collaboratorEmail, @RequestParam("boardId") Long boardId) throws Exception {
         Future<?> board = boardService.inviteUserToBoard(collaboratorEmail, boardId);
         try {
@@ -220,7 +182,7 @@ public class BoardController {
         @ApiResponse(code = 404, message = "Not found"),
         @ApiResponse(code = 500, message = "Internal server error")
     })
-    @PostMapping("/invitation/{token}")
+    @GetMapping("/invitation/{token}")
     public ResponseEntity<?> acceptInvitation(@PathVariable("token") String token, @RequestParam("boardId") Long boardId) throws Exception {
         try {
             ConfirmationTokenEntity confirmationToken = confirmationTokenService.getByToken(token);   

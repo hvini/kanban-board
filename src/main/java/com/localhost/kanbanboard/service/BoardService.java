@@ -40,6 +40,20 @@ public class BoardService {
     @Autowired
     private BoardInvitationService boardInvitationService;
 
+    public BoardEntity getUserBoardById(Long boardId, String userEmail) throws ResourceNotFoundException {
+        Optional<BoardEntity> board = boardRepository.findById(boardId);
+        UserEntity user = userService.getByEmail(userEmail);
+
+        if(!board.isPresent())
+            throw new ResourceNotFoundException("Invalid board identification!.");
+
+        if(!board.get().getUsers().contains(user))
+            throw new ResourceNotFoundException("User is not in this board!.");
+
+        return board.get();
+
+    }
+
     public BoardEntity getById(Long boardId) throws ResourceNotFoundException {
         Optional<BoardEntity> board = boardRepository.findById(boardId);
 
@@ -68,33 +82,33 @@ public class BoardService {
     }
 
     @Async("threadPoolTaskExecutor")
-    public Future<?> create(BoardEntity boardEntity, Long userId) throws ResourceNotFoundException {
-        UserEntity user = userService.getById(userId);
+    public Future<?> create(BoardEntity boardEntity, String userEmail) throws ResourceNotFoundException {
+        UserEntity user = userService.getByEmail(userEmail);
 
         boardEntity.addUser(user);
         boardRepository.save(boardEntity);
 
         roleService.create("admin", user, boardEntity);
-        return CompletableFuture.completedFuture(null);
+        return CompletableFuture.completedFuture(boardEntity);
     }
 
     @Async("threadPoolTaskExecutor")
-    public Future<?> update(BoardEntity boardEntity, Long userId) throws ResourceNotFoundException, MethodArgumentNotValidException {
+    public Future<?> update(BoardEntity boardEntity, String userEmail) throws ResourceNotFoundException, MethodArgumentNotValidException {
         BoardEntity board = getById(boardEntity.getBoardId());
-        UserEntity user = userService.getById(userId);
+        UserEntity user = userService.getByEmail(userEmail);
 
         if(!userService.userIsInTheBoard(user, board))
             throw new MethodArgumentNotValidException("User is not in this board!.");
 
         board.setName(boardEntity.getName());
         boardRepository.save(board);
-        return CompletableFuture.completedFuture(null);
+        return CompletableFuture.completedFuture(board);
     }
 
     @Async("threadPoolTaskExecutor")
-    public Future<?> delete(Long boardId, Long userId) throws ResourceNotFoundException, MethodArgumentNotValidException {
+    public Future<?> delete(Long boardId, String userEmail) throws ResourceNotFoundException, MethodArgumentNotValidException {
         BoardEntity board = getById(boardId);
-        UserEntity user = userService.getById(userId);
+        UserEntity user = userService.getByEmail(userEmail);
 
         if(!userHasBoard(user, board))
             throw new MethodArgumentNotValidException("User does not belong to this board!.");
@@ -116,24 +130,6 @@ public class BoardService {
         }
 
         boardRepository.delete(board);
-        return CompletableFuture.completedFuture(null);
-    }
-
-    @Async("threadPoolTaskExecutor")
-    public Future<?> favorite(Long userId, Long boardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
-        UserEntity user = userService.getById(userId);
-        BoardEntity board = getById(boardId);
-
-        userService.addBoardToFavorite(user, board);
-        return CompletableFuture.completedFuture(null);
-    }
-
-    @Async("threadPoolTaskExecutor")
-    public Future<?> unfavorite(Long userId, Long boardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
-        UserEntity user = userService.getById(userId);
-        BoardEntity board = getById(boardId);
-
-        userService.removeBoardFromFavorite(user, board);
         return CompletableFuture.completedFuture(null);
     }
 
@@ -192,7 +188,7 @@ public class BoardService {
     }
 
     private void sendInvitationEmail(String collaboratorEmail, String token, BoardEntity board) throws IOException {
-        Content content = new Content("text/html", "You have an invitation to collaborate in a board, to accept it click on the bellow link." + "http://localhost:8080/board/invitation/" + token + "/?boardId=" + board.getBoardId());
+        Content content = new Content("text/html", "You have an invitation to collaborate in a board, to accept it click on the bellow link." + "http://localhost:4200/board/" + board.getBoardId() + "/invite/" + token);
         String subject  = "Board Invitation Link!.";
         Email from      = new Email("vhpcavalcanti@outlook.com");
         Email to        = new Email(collaboratorEmail);

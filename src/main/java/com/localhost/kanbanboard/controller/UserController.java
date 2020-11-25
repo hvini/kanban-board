@@ -45,6 +45,16 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    @GetMapping("/{userEmail}")
+    public ResponseEntity<?> getById(@PathVariable("userEmail") String userEmail) throws Exception {
+        try {
+            UserEntity user = userService.getByEmail(userEmail);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch(ResourceNotFoundException ex) {
+            throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
+        }
+    }
+
     @ApiOperation(value = "Find all boards of a user", notes = "Returns all boards of the informed user")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Boards successfully found"),
@@ -52,10 +62,10 @@ public class UserController {
         @ApiResponse(code = 404, message = "Not Found"),
         @ApiResponse(code = 500, message = "Internal server error"),
     })
-    @GetMapping("/{userId}/boards")
-    public ResponseEntity<?> getAllBoards(@PathVariable("userId") Long userId) throws Exception {
+    @GetMapping("/{userEmail}/boards")
+    public ResponseEntity<?> getAllBoards(@PathVariable("userEmail") String userEmail) throws Exception {
         try {
-            List<BoardEntity> boards = userService.getAllBoards(userId);
+            List<BoardEntity> boards = userService.getAllBoards(userEmail);
             return new ResponseEntity<>(boards, HttpStatus.OK);
         } catch(ResourceNotFoundException ex) {
             throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);

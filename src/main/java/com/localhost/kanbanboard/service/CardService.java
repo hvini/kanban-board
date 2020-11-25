@@ -53,9 +53,9 @@ public class CardService {
     }
 
     @Async("threadPoolTaskExecutor")
-    public Future<?> create(CardEntity card, Long listId, Long userId, Long boardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
+    public Future<?> create(CardEntity card, Long listId, String userEmail, Long boardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
         ListEntity list = listService.getById(listId);
-        UserEntity user = userService.getById(userId);
+        UserEntity user = userService.getByEmail(userEmail);
         BoardEntity board = boardService.getById(boardId);
         String text = user.getFullName() + " adicionou " + card.getName() + " a " + list.getName();
 
@@ -71,13 +71,13 @@ public class CardService {
         cardRepository.save(card);
 
         activityService.create(text, list.getBoard());
-        return CompletableFuture.completedFuture(null);
+        return CompletableFuture.completedFuture(card);
     }
 
     @Async("threadPoolTaskExecutor")
-    public Future<?> update(CardEntity cardEntity, Long boardId, Long userId) throws ResourceNotFoundException, MethodArgumentNotValidException {
+    public Future<?> update(CardEntity cardEntity, Long boardId, String userEmail) throws ResourceNotFoundException, MethodArgumentNotValidException {
         CardEntity card = getById(cardEntity.getCardId());
-        UserEntity user = userService.getById(userId);
+        UserEntity user = userService.getByEmail(userEmail);
         BoardEntity board = boardService.getById(boardId);
         ListEntity list = listService.getById(card.getList().getListId());
 
@@ -91,12 +91,12 @@ public class CardService {
         card.setDueDate(cardEntity.getDueDate());
         card.setDescription(cardEntity.getDescription());
         cardRepository.save(card);
-        return CompletableFuture.completedFuture(null);
+        return CompletableFuture.completedFuture(card);
     }
 
     @Async("threadPoolTaskExecutor")
-    public Future<?> closeCard(Long cardId, Long boardId, Long userId) throws ResourceNotFoundException, MethodArgumentNotValidException {
-        UserEntity user = userService.getById(userId);
+    public Future<?> closeCard(Long cardId, Long boardId, String userEmail) throws ResourceNotFoundException, MethodArgumentNotValidException {
+        UserEntity user = userService.getByEmail(userEmail);
         BoardEntity board = boardService.getById(boardId);
         CardEntity card = getById(cardId);
         ListEntity list = listService.getById(card.getList().getListId());
@@ -113,12 +113,12 @@ public class CardService {
         card.setIsFinished(true);
         card.setFinishedDate(LocalDateTime.now());
         cardRepository.save(card);
-        return CompletableFuture.completedFuture(null);
+        return CompletableFuture.completedFuture(card);
     }
 
     @Async("threadPoolTaskExecutor")
-    public Future<?> openCard(Long cardId, Long boardId, Long userId) throws ResourceNotFoundException, MethodArgumentNotValidException {
-        UserEntity user = userService.getById(userId);
+    public Future<?> openCard(Long cardId, Long boardId, String userEmail) throws ResourceNotFoundException, MethodArgumentNotValidException {
+        UserEntity user = userService.getByEmail(userEmail);
         BoardEntity board = boardService.getById(boardId);
         CardEntity card = getById(cardId);
         ListEntity list = listService.getById(card.getList().getListId());
@@ -134,12 +134,12 @@ public class CardService {
 
         card.setIsFinished(false);
         cardRepository.save(card);
-        return CompletableFuture.completedFuture(null);
+        return CompletableFuture.completedFuture(card);
     }
 
     @Async("threadPoolTaskExecutor")
-    public Future<?> moveCard(CardEntity cardEntity, Long listId, Long boardId, Long userId) throws ResourceNotFoundException, MethodArgumentNotValidException {
-        UserEntity user = userService.getById(userId);
+    public Future<?> moveCard(CardEntity cardEntity, Long listId, Long boardId, String userEmail) throws ResourceNotFoundException, MethodArgumentNotValidException {
+        UserEntity user = userService.getByEmail(userEmail);
         BoardEntity board = boardService.getById(boardId);
         CardEntity card = getById(cardEntity.getCardId());
         ListEntity list = listService.getById(listId);
@@ -157,6 +157,6 @@ public class CardService {
 
         activityService.create(text, board);
         
-        return CompletableFuture.completedFuture(null);
+        return CompletableFuture.completedFuture(card);
     }
 }

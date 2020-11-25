@@ -44,8 +44,8 @@ public class CommentService {
     }
 
     @Async("threadPoolTaskExecutor")
-    public Future<?> create(CommentEntity comment, Long userId, Long boardId, Long cardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
-        UserEntity user = userService.getById(userId);
+    public Future<?> create(CommentEntity comment, String userEmail, Long boardId, Long cardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
+        UserEntity user = userService.getByEmail(userEmail);
         CardEntity card = cardService.getById(cardId);
         BoardEntity board = boardService.getById(boardId);
         ListEntity list = listService.getById(card.getList().getListId());
@@ -62,12 +62,12 @@ public class CommentService {
         commentRepository.save(comment);
 
         activityService.create(text, card.getList().getBoard());
-        return CompletableFuture.completedFuture(null);
+        return CompletableFuture.completedFuture(comment);
     }
 
     @Async("threadPoolTaskExecutor")
-    public Future<?> update(CommentEntity commentEntity, Long userId, Long boardId, Long cardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
-        UserEntity user = userService.getById(userId);
+    public Future<?> update(CommentEntity commentEntity, String userEmail, Long boardId, Long cardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
+        UserEntity user = userService.getByEmail(userEmail);
         CardEntity card = cardService.getById(cardId);
         BoardEntity board = boardService.getById(boardId);
         ListEntity list = listService.getById(card.getList().getListId());
@@ -90,13 +90,13 @@ public class CommentService {
         commentRepository.save(comment);
 
         activityService.create(text, card.getList().getBoard());
-        return CompletableFuture.completedFuture(null);
+        return CompletableFuture.completedFuture(comment);
     }
 
     @Async("threadPoolTaskExecutor")
-    public Future<?> remove(Long commentId, Long userId, Long boardId, Long cardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
+    public Future<?> remove(Long commentId, String userEmail, Long boardId, Long cardId) throws ResourceNotFoundException, MethodArgumentNotValidException {
         CommentEntity comment = getById(commentId);
-        UserEntity user = userService.getById(userId);
+        UserEntity user = userService.getByEmail(userEmail);
         CardEntity card = cardService.getById(cardId);
         BoardEntity board = boardService.getById(boardId);
         ListEntity list = listService.getById(card.getList().getListId());

@@ -61,11 +61,10 @@ public class ListController {
 
     })
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody ListEntity listEntity, @RequestParam("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
-        Future<?> list = listService.create(listEntity, boardId, userId);
+    public ResponseEntity<?> create(@RequestBody ListEntity listEntity, @RequestParam("boardId") Long boardId, @RequestParam("userEmail") String userEmail) throws Exception {
+        Future<?> list = listService.create(listEntity, boardId, userEmail);
         try {
-            list.get();
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            return new ResponseEntity<>(list.get(), HttpStatus.CREATED);
         } catch(InterruptedException | CancellationException | ExecutionException ex) {
             if(ex.getCause() instanceof ResourceNotFoundException) {
                 throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
@@ -85,12 +84,11 @@ public class ListController {
 
     })
     @PutMapping("/{listId}/update")
-    public ResponseEntity<?> update(@RequestBody ListEntity listEntity, @PathVariable("listId") Long listId, @RequestParam("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
+    public ResponseEntity<?> update(@RequestBody ListEntity listEntity, @PathVariable("listId") Long listId, @RequestParam("boardId") Long boardId, @RequestParam("userEmail") String userEmail) throws Exception {
         listEntity.setListId(listId);
-        Future<?> list = listService.update(listEntity, boardId, userId);
+        Future<?> list = listService.update(listEntity, boardId, userEmail);
         try {
-            list.get();
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(list.get(), HttpStatus.OK);
         } catch(InterruptedException | CancellationException | ExecutionException ex) {
             if(ex.getCause() instanceof ResourceNotFoundException) {
                 throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);

@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import com.localhost.kanbanboard.service.CommentService;
 import com.localhost.kanbanboard.entity.CommentEntity;
+import com.localhost.kanbanboard.service.BoardService;
 import com.localhost.kanbanboard.service.CardService;
+import com.localhost.kanbanboard.entity.ListEntity;
 import com.localhost.kanbanboard.entity.CardEntity;
 import java.util.concurrent.CancellationException;
 import org.springframework.stereotype.Controller;
@@ -36,6 +38,18 @@ public class CardController {
     private CardService cardService;
     @Autowired
     private CommentService commentService;
+    @Autowired
+    private BoardService boardService;
+
+    @GetMapping("/{cardId}")
+    public ResponseEntity<?> getById(@PathVariable("cardId") Long cardId) throws Exception {
+        try {
+            CardEntity card = cardService.getById(cardId);
+            return new ResponseEntity<>(card, HttpStatus.OK);
+        } catch(ResourceNotFoundException ex) {
+            throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
+        }
+    }
 
     @ApiOperation(value = "Find all comments in a card", notes = "Returns all comments from the informed card")
     @ApiResponses(value  = {
@@ -63,11 +77,10 @@ public class CardController {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody CardEntity cardEntity, @RequestParam("listId") Long listId, @RequestParam("userId") Long userId, @RequestParam("boardId") Long boardId) throws Exception {
-        Future<?> card = cardService.create(cardEntity, listId, userId, boardId);
+    public ResponseEntity<?> create(@RequestBody CardEntity cardEntity, @RequestParam("listId") Long listId, @RequestParam("userEmail") String userEmail, @RequestParam("boardId") Long boardId) throws Exception {
+        Future<?> card = cardService.create(cardEntity, listId, userEmail, boardId);
         try {
-            card.get();
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            return new ResponseEntity<>(card.get(), HttpStatus.CREATED);
         } catch(InterruptedException | CancellationException | ExecutionException ex) {
             if(ex.getCause() instanceof ResourceNotFoundException) {
                 throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
@@ -86,12 +99,11 @@ public class CardController {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     @PutMapping("/{cardId}/update")
-    public ResponseEntity<?> update(@RequestBody CardEntity cardEntity, @PathVariable("cardId") Long cardId, @RequestParam("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
+    public ResponseEntity<?> update(@RequestBody CardEntity cardEntity, @PathVariable("cardId") Long cardId, @RequestParam("boardId") Long boardId, @RequestParam("userEmail") String userEmail) throws Exception {
         cardEntity.setCardId(cardId);
-        Future<?> card = cardService.update(cardEntity, boardId, userId);
+        Future<?> card = cardService.update(cardEntity, boardId, userEmail);
         try {
-            card.get();
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(card.get(), HttpStatus.OK);
         } catch(InterruptedException | CancellationException | ExecutionException ex) {
             if(ex.getCause() instanceof ResourceNotFoundException) {
                 throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
@@ -111,11 +123,10 @@ public class CardController {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     @PutMapping("/{cardId}/close")
-    public ResponseEntity<?> close(@PathVariable("cardId") Long cardId, @RequestParam("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
-        Future<?> card = cardService.closeCard(cardId, boardId, userId);
+    public ResponseEntity<?> close(@PathVariable("cardId") Long cardId, @RequestParam("boardId") Long boardId, @RequestParam("userEmail") String userEmail) throws Exception {
+        Future<?> card = cardService.closeCard(cardId, boardId, userEmail);
         try {
-            card.get();
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(card.get(), HttpStatus.OK);
         } catch(InterruptedException | CancellationException | ExecutionException ex) {
             if(ex.getCause() instanceof ResourceNotFoundException) {
                 throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
@@ -134,11 +145,10 @@ public class CardController {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     @PutMapping("/{cardId}/open")
-    public ResponseEntity<?> open(@PathVariable("cardId") Long cardId, @RequestParam("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
-        Future<?> card = cardService.openCard(cardId, boardId, userId);
+    public ResponseEntity<?> open(@PathVariable("cardId") Long cardId, @RequestParam("boardId") Long boardId, @RequestParam("userEmail") String userEmail) throws Exception {
+        Future<?> card = cardService.openCard(cardId, boardId, userEmail);
         try {
-            card.get();
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(card.get(), HttpStatus.OK);
         } catch(InterruptedException | CancellationException | ExecutionException ex) {
             if(ex.getCause() instanceof ResourceNotFoundException) {
                 throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
@@ -157,11 +167,10 @@ public class CardController {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     @PostMapping("/{cardId}/comment")
-    public ResponseEntity<?> addComment(@RequestBody CommentEntity commentEntity, @PathVariable("cardId") Long cardId, @RequestParam("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
-        Future<?> comment = commentService.create(commentEntity, userId, boardId, cardId);
+    public ResponseEntity<?> addComment(@RequestBody CommentEntity commentEntity, @PathVariable("cardId") Long cardId, @RequestParam("boardId") Long boardId, @RequestParam("userEmail") String userEmail) throws Exception {
+        Future<?> comment = commentService.create(commentEntity, userEmail, boardId, cardId);
         try {
-            comment.get();
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(comment.get(), HttpStatus.OK);
         } catch(InterruptedException | CancellationException | ExecutionException ex) {
             if(ex.getCause() instanceof ResourceNotFoundException) {
                 throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
@@ -180,12 +189,11 @@ public class CardController {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     @PutMapping("/{cardId}/comment/update")
-    public ResponseEntity<?> updateComment(@RequestBody CommentEntity commentEntity, @PathVariable("cardId") Long cardId, @RequestParam("boardId") Long boardId, @RequestParam("userId") Long userId, @RequestParam("commentId") Long commentId) throws Exception {
+    public ResponseEntity<?> updateComment(@RequestBody CommentEntity commentEntity, @PathVariable("cardId") Long cardId, @RequestParam("boardId") Long boardId, @RequestParam("userEmail") String userEmail, @RequestParam("commentId") Long commentId) throws Exception {
         commentEntity.setCommentId(commentId);
-        Future<?> comment = commentService.update(commentEntity, userId, boardId, cardId);
+        Future<?> comment = commentService.update(commentEntity, userEmail, boardId, cardId);
         try {
-            comment.get();
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(comment.get(), HttpStatus.OK);
         } catch(InterruptedException | CancellationException | ExecutionException ex) {
             if(ex.getCause() instanceof ResourceNotFoundException) {
                 throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
@@ -204,8 +212,8 @@ public class CardController {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     @DeleteMapping("/{cardId}/comment/delete")
-    public ResponseEntity<?> removeComment(@PathVariable("cardId") Long cardId, @RequestParam("boardId") Long boardId, @RequestParam("userId") Long userId, @RequestParam("commentId") Long commentId) throws Exception {
-        Future<?> comment = commentService.remove(commentId, userId, boardId, cardId);
+    public ResponseEntity<?> removeComment(@PathVariable("cardId") Long cardId, @RequestParam("boardId") Long boardId, @RequestParam("userEmail") String userEmail, @RequestParam("commentId") Long commentId) throws Exception {
+        Future<?> comment = commentService.remove(commentId, userEmail, boardId, cardId);
         try {
             comment.get();
             return new ResponseEntity<>(HttpStatus.OK);
@@ -227,12 +235,13 @@ public class CardController {
         @ApiResponse(code = 500, message = "Internal server error")
     })
     @PutMapping("/{cardId}/move")
-    public ResponseEntity<?> moveCard(@RequestBody CardEntity cardEntity, @PathVariable("cardId") Long cardId, @RequestParam("listId") Long listId, @RequestParam("boardId") Long boardId, @RequestParam("userId") Long userId) throws Exception {
+    public ResponseEntity<?> moveCard(@RequestBody CardEntity cardEntity, @PathVariable("cardId") Long cardId, @RequestParam("listId") Long listId, @RequestParam("boardId") Long boardId, @RequestParam("userEmail") String userEmail) throws Exception {
         cardEntity.setCardId(cardId);
-        Future<?> card = cardService.moveCard(cardEntity, listId, boardId, userId);
+        Future<?> card = cardService.moveCard(cardEntity, listId, boardId, userEmail);
         try {
             card.get();
-            return new ResponseEntity<>(HttpStatus.OK);
+            List<ListEntity> lists = boardService.getAllLists(boardId);
+            return new ResponseEntity<>(lists, HttpStatus.OK);
         } catch(InterruptedException | CancellationException | ExecutionException ex) {
             if(ex.getCause() instanceof ResourceNotFoundException) {
                 throw new ResourceNotFoundException(ex.getLocalizedMessage(), ex);
